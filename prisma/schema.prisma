@@ -1,0 +1,248 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String          @id @default(cuid())
+  email            String          @unique
+  name             String?
+  role             Role            @default(CREATOR)
+  passwordHash     String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  brandProfile     BrandProfile?
+  creatorProfile   CreatorProfile?
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  sentMessages     Message[]       @relation("SentMessages")
+  notifications    Notification[]
+
+  @@index([role])
+}
+
+model CreatorProfile {
+  id                 String              @id @default(cuid())
+  userId             String              @unique
+  handle             String              @unique
+  displayName        String
+  bio                String?
+  avatarUrl          String?
+  category           String?
+  location           String?
+  website            String?
+  contactEmail       String?
+  ratesSummary       String?
+  isVerified         Boolean             @default(false)
+  totalReach         Int                 @default(0)
+  avgEngagementRate  Float               @default(0.0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  audienceSnapshots  AudienceSnapshot[]
+  collaborations     Collaboration[]
+  conversations      Conversation[]
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  performanceMetrics PerformanceMetric[]
+  socialAccounts     SocialAccount[]
+
+  @@index([category])
+  @@index([totalReach])
+}
+
+model BrandProfile {
+  id             String          @id @default(cuid())
+  userId         String          @unique
+  companyName    String
+  logoUrl        String?
+  website        String?
+  industry       String?
+  description    String?
+  location       String?
+  budgetRange    String?
+  isVerified     Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaigns      Campaign[]
+  collaborations Collaboration[]
+  conversations  Conversation[]
+
+  @@index([industry])
+}
+
+model SocialAccount {
+  id                String         @id @default(cuid())
+  creatorId         String
+  platform          SocialPlatform
+  platformAccountId String?
+  username          String
+  profileUrl        String?
+  followersCount    Int            @default(0)
+  followingCount    Int            @default(0)
+  postsCount        Int            @default(0)
+  engagementRate    Float          @default(0.0)
+  metricsJson       String?
+  isConnected       Boolean        @default(true)
+  lastSyncedAt      DateTime       @default(now())
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  creator           CreatorProfile @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([creatorId, platform])
+  @@index([platform])
+}
+
+model AudienceSnapshot {
+  id             String          @id @default(cuid())
+  creatorId      String
+  platform       SocialPlatform?
+  followersCount Int
+  recordedAt     DateTime        @default(now())
+  creator        CreatorProfile  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId, recordedAt])
+}
+
+model PerformanceMetric {
+  id         String         @id @default(cuid())
+  creatorId  String
+  platform   SocialPlatform
+  metricType String
+  value      Float
+  period     String
+  recordedAt DateTime       @default(now())
+  creator    CreatorProfile @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId, platform, metricType])
+}
+
+model Campaign {
+  id              String          @id @default(cuid())
+  brandId         String
+  title           String
+  description     String
+  budget          Float?
+  currency        String          @default("USD")
+  targetCategory  String?
+  targetPlatforms String?
+  deadline        DateTime?
+  status          CampaignStatus  @default(ACTIVE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  brand           BrandProfile    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  collaborations  Collaboration[]
+
+  @@index([brandId])
+  @@index([status])
+}
+
+model Collaboration {
+  id            String              @id @default(cuid())
+  brandId       String
+  creatorId     String
+  campaignId    String?
+  title         String
+  description   String
+  deliverables  String?
+  budgetAmount  Float?
+  currency      String              @default("USD")
+  status        CollaborationStatus @default(PENDING)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  brand         BrandProfile        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  campaign      Campaign?           @relation(fields: [campaignId], references: [id])
+  creator       CreatorProfile      @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  messages      Message[]
+
+  @@unique([brandId, creatorId, title])
+  @@index([status])
+  @@index([brandId])
+  @@index([creatorId])
+  @@index([campaignId])
+}
+
+model Conversation {
+  id              String         @id @default(cuid())
+  creatorId       String
+  brandId         String
+  collaborationId String?
+  lastMessageAt   DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  brand           BrandProfile   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  collaboration   Collaboration? @relation(fields: [collaborationId], references: [id])
+  creator         CreatorProfile @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  messages        Message[]
+
+  @@unique([creatorId, brandId, collaborationId])
+  @@index([creatorId])
+  @@index([brandId])
+}
+
+model Message {
+  id              String         @id @default(cuid())
+  conversationId  String?
+  collaborationId String?
+  senderId        String
+  receiverId      String
+  content         String
+  isRead          Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  collaboration   Collaboration? @relation(fields: [collaborationId], references: [id])
+  conversation    Conversation?  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  receiver        User           @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender          User           @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([conversationId])
+  @@index([collaborationId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+}
+
+enum Role {
+  CREATOR
+  BRAND
+  ADMIN
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  YOUTUBE
+  X_TWITTER
+  FACEBOOK
+  LINKEDIN
+  WHATSAPP_CHANNEL
+}
+
+enum CollaborationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}

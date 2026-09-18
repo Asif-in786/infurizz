@@ -30,8 +30,27 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
+.env
+.env*.local
+.env.local
+.env.development
+.env.test
+.env.production
 .env*
+!.env.example
+
+# database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+prisma/dev.db
+prisma/*.db
+
+# IDE, agent & local configurations
+.agents/
+mcp_config.local.json
 
 # vercel
 .vercel
