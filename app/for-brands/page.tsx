@@ -2,7 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro, Shell } from "@/components/page-intro";
 
-export const metadata: Metadata = { title: "For Brands" };
+export const metadata: Metadata = {
+  title: "For Brands · Publish Briefs & Partner With Verified Creators",
+  description:
+    "Publish structured campaign requirements, review qualified creator proposals, verify multi-platform analytics, and manage collaborations with clarity.",
+  alternates: {
+    canonical: "/for-brands",
+  },
+  openGraph: {
+    title: "For Brands · Publish Briefs & Partner With Verified Creators | INFURIZZ",
+    description:
+      "Publish structured campaign requirements, review qualified creator proposals, verify multi-platform analytics, and manage collaborations with clarity.",
+    url: "https://infurizzv1.vercel.app/for-brands",
+  },
+};
 
 const path = [
   ["Join INFURIZZ", "Choose Brand and describe the company."],
@@ -31,9 +44,14 @@ export default function ForBrandsPage() {
           </li>
         ))}
       </ol>
-      <Link href="/join?role=brand" className="mt-8 inline-flex min-h-12 w-full items-center justify-center bg-ink px-5 text-sm text-paper sm:w-auto">
-        Join as a brand
-      </Link>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Link href="/join?role=brand" className="inline-flex min-h-12 w-full items-center justify-center bg-ink px-5 text-sm text-paper sm:w-auto">
+          Join as a brand
+        </Link>
+        <Link href="/discover" className="inline-flex min-h-12 w-full items-center justify-center border border-ink/20 px-5 text-sm text-ink hover:border-ink transition-colors sm:w-auto">
+          Discover Creator Storefronts →
+        </Link>
+      </div>
     </Shell>
   );
 }

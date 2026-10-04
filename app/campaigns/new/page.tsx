@@ -4,7 +4,13 @@ import { CampaignForm } from "@/components/campaign-form";
 import { PageIntro, Shell } from "@/components/page-intro";
 import { getCurrentUser } from "@/lib/current";
 
-export const metadata: Metadata = { title: "New campaign" };
+export const metadata: Metadata = {
+  title: "New Campaign",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function NewCampaignPage() {
   const user = await getCurrentUser();

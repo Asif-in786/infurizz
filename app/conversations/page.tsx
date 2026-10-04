@@ -8,6 +8,10 @@ import { prisma } from "@/lib/prisma";
 export const metadata: Metadata = {
   title: "Messages · Conversations & Collaboration Inquiries",
   description: "Direct communication between creators and brands across applications and mutual matches.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function ConversationsInboxPage() {

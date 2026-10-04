@@ -1,7 +1,50 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Shell } from "@/components/page-intro";
 import { RevolvingBorder } from "@/components/revolving-border";
 import { ScrollReveal, StaggerGroup } from "@/components/scroll-reveal";
+import { JsonLd } from "@/components/json-ld";
+
+export const metadata: Metadata = {
+  title: "INFURIZZ — Creator Marketplace & Brand Collaboration Platform",
+  description:
+    "Discover creators, launch campaigns, and build meaningful brand collaborations through one creator identity platform. One Creator. Multiple Platforms. One Identity.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "INFURIZZ — Creator Marketplace & Brand Collaboration Platform",
+    description:
+      "Discover creators, launch campaigns, and build meaningful brand collaborations through one creator identity platform.",
+    url: "https://infurizzv1.vercel.app",
+    type: "website",
+  },
+};
+
+const homeStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://infurizzv1.vercel.app/#website",
+      "url": "https://infurizzv1.vercel.app",
+      "name": "INFURIZZ",
+      "description": "Creator Marketplace & Brand Collaboration Platform",
+      "publisher": {
+        "@id": "https://infurizzv1.vercel.app/#organization",
+      },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://infurizzv1.vercel.app/#organization",
+      "name": "INFURIZZ",
+      "url": "https://infurizzv1.vercel.app",
+      "logo": "https://infurizzv1.vercel.app/opengraph-image",
+      "description":
+        "Professional creator network, marketplace, and multi-platform analytics layer for creator-brand partnerships.",
+    },
+  ],
+};
 
 const steps = [
   ["Discover", "Creators review campaigns. Brands review creator profiles."],
@@ -13,6 +56,7 @@ const steps = [
 export default function HomePage() {
   return (
     <Shell>
+      <JsonLd data={homeStructuredData} />
       {/* Hero Section with Cinematic Staged Entrance */}
       <section className="grid items-end gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-8">

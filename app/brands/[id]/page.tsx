@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageIntro, Shell } from "@/components/page-intro";
 import { Monogram } from "@/components/profile-bits";
+import { JsonLd } from "@/components/json-ld";
 import { getCurrentUser } from "@/lib/current";
 import { money, platformsFromJson } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -14,8 +15,37 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const brand = await prisma.brand.findUnique({ where: { id } });
+
+  if (!brand) {
+    return {
+      title: "Brand Profile",
+      description: "Explore verified brands, campaigns, and creator partnership opportunities.",
+    };
+  }
+
+  const title = `${brand.name} · Brand Profile & Active Campaigns`;
+  const description =
+    brand.about?.slice(0, 160) ||
+    `${brand.name} brand profile on INFURIZZ. Discover open campaign requirements, briefs, and partnership opportunities.`;
+  const canonicalUrl = `/brands/${brand.id}`;
+
   return {
-    title: brand ? `${brand.name} · Brand Profile & Requirements` : "Brand Profile",
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${title} | INFURIZZ`,
+      description,
+      url: `https://infurizzv1.vercel.app${canonicalUrl}`,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | INFURIZZ`,
+      description,
+    },
   };
 }
 
@@ -66,8 +96,26 @@ export default async function BrandProfilePage({
 
   const appliedCampaignIds = new Map(creatorApplications.map((app) => [app.campaignId, app.status]));
 
+  const brandJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: brand.name,
+    description:
+      brand.about || `${brand.name} brand profile on INFURIZZ.`,
+    url: `https://infurizzv1.vercel.app/brands/${brand.id}`,
+    ...(brand.location
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: brand.location,
+          },
+        }
+      : {}),
+  };
+
   return (
     <Shell>
+      <JsonLd data={brandJsonLd} />
       <div className="border border-line bg-card p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-5">

@@ -203,7 +203,7 @@ export function PostCard({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={post.mediaUrl}
-                alt="Post media attachment"
+                alt={post.content ? `Attachment for post by ${post.author.name}: ${post.content.slice(0, 50)}` : "Post media attachment"}
                 className="max-h-96 w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
                 loading="lazy"
               />

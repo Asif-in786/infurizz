@@ -14,6 +14,7 @@ import { calculateCombinedPlatformFootprint } from "@/lib/social/normalization";
 import { CreatorDemoAnalytics } from "@/components/creator-demo-analytics";
 import { RevolvingBorder } from "@/components/revolving-border";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import { JsonLd } from "@/components/json-ld";
 
 export async function generateMetadata({
   params,
@@ -24,8 +25,37 @@ export async function generateMetadata({
   const creator = await prisma.creator.findFirst({
     where: { OR: [{ id }, { username: id }] },
   });
+
+  if (!creator) {
+    return {
+      title: "Creator Storefront",
+      description: "Explore creator profiles, storefronts, and brand collaboration opportunities.",
+    };
+  }
+
+  const title = `${creator.name} (@${creator.username || creator.id}) · Creator Profile`;
+  const description =
+    creator.bio?.slice(0, 160) ||
+    `${creator.name} is a ${creator.category || "content"} creator on INFURIZZ. Explore verified storefront, portfolio, and collaboration packages.`;
+  const canonicalUrl = `/creators/${creator.id}`;
+
   return {
-    title: creator ? `${creator.name} (@${creator.username || creator.id}) · Storefront` : "Creator Storefront",
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${title} | INFURIZZ`,
+      description,
+      url: `https://infurizzv1.vercel.app${canonicalUrl}`,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | INFURIZZ`,
+      description,
+    },
   };
 }
 
@@ -235,8 +265,29 @@ export default async function CreatorStorefrontPage({
           },
         ];
 
+  const creatorJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: creator.name,
+    alternateName: creator.username ? `@${creator.username}` : undefined,
+    jobTitle: creator.category || "Content Creator",
+    description:
+      creator.bio || `${creator.name} is a content creator profile on INFURIZZ.`,
+    url: `https://infurizzv1.vercel.app/creators/${creator.id}`,
+    ...(creator.location
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: creator.location,
+          },
+        }
+      : {}),
+    sameAs: creator.socials?.map((s) => s.handle).filter(Boolean) || [],
+  };
+
   return (
     <Shell>
+      <JsonLd data={creatorJsonLd} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <SampleMark show={creator.isDemo} />

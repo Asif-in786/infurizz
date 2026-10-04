@@ -4,7 +4,13 @@ import { PageIntro, Shell } from "@/components/page-intro";
 import { RoleSelector } from "@/components/role-selector";
 import { getCurrentUser } from "@/lib/current";
 
-export const metadata: Metadata = { title: "Choose Your Role" };
+export const metadata: Metadata = {
+  title: "Choose Your Role",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function OnboardingRolePage() {
   const user = await getCurrentUser();

@@ -9,6 +9,10 @@ import { connectPlatform, disconnectPlatform } from "@/lib/actions";
 export const metadata: Metadata = {
   title: "Creator Analytics · Multi-Platform Intelligence",
   description: "Cross-platform performance analytics across Instagram, YouTube, X, LinkedIn, Facebook, and WhatsApp.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const ALL_PLATFORMS = [

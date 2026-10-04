@@ -6,7 +6,20 @@ import { prisma } from "@/lib/prisma";
 import { CATEGORIES, PLATFORMS } from "@/lib/options";
 import { getCurrentUser } from "@/lib/current";
 
-export const metadata: Metadata = { title: "Campaigns · Marketplace Opportunities" };
+export const metadata: Metadata = {
+  title: "Campaigns · Marketplace Collaboration Briefs",
+  description:
+    "Browse open creator campaign briefs with transparent budgets, required platforms, and explicit deliverables. Pitch your services directly.",
+  alternates: {
+    canonical: "/campaigns",
+  },
+  openGraph: {
+    title: "Campaigns · Marketplace Collaboration Briefs | INFURIZZ",
+    description:
+      "Browse open creator campaign briefs with transparent budgets, required platforms, and explicit deliverables. Pitch your services directly.",
+    url: "https://infurizzv1.vercel.app/campaigns",
+  },
+};
 
 export default async function CampaignsDirectoryPage({
   searchParams,

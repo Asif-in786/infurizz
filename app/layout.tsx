@@ -16,11 +16,65 @@ const serif = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://infurizzv1.vercel.app"),
   title: {
-    default: "INFURIZZ",
+    default: "INFURIZZ — Creator Marketplace & Brand Collaboration Platform",
     template: "%s · INFURIZZ",
   },
-  description: "Find the right creator. Find the right brand.",
+  description:
+    "Discover creators, launch campaigns, and build meaningful brand collaborations through one creator identity platform. Transparent briefs, verified storefronts, and multi-platform analytics.",
+  keywords: [
+    "creator marketplace",
+    "creator discovery",
+    "influencer marketing",
+    "creator-brand collaboration",
+    "creator profiles",
+    "brand campaigns",
+    "campaign matching",
+    "creator analytics",
+    "creator identity",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://infurizzv1.vercel.app",
+    siteName: "INFURIZZ",
+    title: "INFURIZZ — Creator Marketplace & Brand Collaboration Platform",
+    description:
+      "Discover creators, launch campaigns, and build meaningful brand collaborations through one creator identity platform.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "INFURIZZ — Creator Marketplace & Brand Collaboration Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "INFURIZZ — Creator Marketplace & Brand Collaboration Platform",
+    description:
+      "Discover creators, launch campaigns, and build meaningful brand collaborations through one creator identity platform.",
+    images: ["/opengraph-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export const viewport: Viewport = {

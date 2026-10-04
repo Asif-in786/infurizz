@@ -4,7 +4,13 @@ import { PageIntro, Shell } from "@/components/page-intro";
 import { isGoogleOAuthConfigured } from "@/lib/auth/oauth";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
-export const metadata: Metadata = { title: "Log in · INFURIZZ" };
+export const metadata: Metadata = {
+  title: "Log in · INFURIZZ",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function LoginPage() {
   const googleConfigured = isGoogleOAuthConfigured();

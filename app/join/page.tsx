@@ -4,7 +4,13 @@ import { PageIntro, Shell } from "@/components/page-intro";
 import { isGoogleOAuthConfigured } from "@/lib/auth/oauth";
 import { isSupabaseConfigured } from "@/lib/supabase";
 
-export const metadata: Metadata = { title: "Join INFURIZZ · Creator & Brand Network" };
+export const metadata: Metadata = {
+  title: "Join INFURIZZ · Creator & Brand Network",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default async function JoinPage({
   searchParams,

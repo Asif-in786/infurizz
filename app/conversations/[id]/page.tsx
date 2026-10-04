@@ -7,7 +7,13 @@ import { getCurrentUser } from "@/lib/current";
 import { money } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
-export const metadata: Metadata = { title: "Conversation" };
+export const metadata: Metadata = {
+  title: "Conversation",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ConversationPage({
   params,

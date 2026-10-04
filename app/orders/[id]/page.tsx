@@ -16,7 +16,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const order = await prisma.order.findUnique({ where: { id } });
-  return { title: order ? `Order ${order.orderNumber} · Collaboration Workspace` : "Order Workspace" };
+  return {
+    title: order ? `Order ${order.orderNumber} · Collaboration Workspace` : "Order Workspace",
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
 }
 
 export default async function OrderWorkspacePage({

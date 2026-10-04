@@ -17,6 +17,7 @@ import { prisma } from "@/lib/prisma";
 import { isCampaignAcceptingApplications, isCampaignPublished } from "@/lib/options";
 import { RevolvingBorder } from "@/components/revolving-border";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import { JsonLd } from "@/components/json-ld";
 
 export async function generateMetadata({
   params,
@@ -24,8 +25,43 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const campaign = await prisma.campaign.findUnique({ where: { id } });
-  return { title: campaign ? `${campaign.name} · Campaign Brief` : "Campaign" };
+  const campaign = await prisma.campaign.findUnique({
+    where: { id },
+    include: { brand: true },
+  });
+
+  if (!campaign) {
+    return {
+      title: "Campaign Brief",
+      description: "Explore creator campaign briefs and collaboration opportunities.",
+    };
+  }
+
+  const isPublic = ["Open", "PUBLISHED", "Published"].includes(campaign.status);
+  const title = `${campaign.name} · Creator Campaign Brief`;
+  const description = `${campaign.name} campaign by ${campaign.brand?.name || "Brand"} in ${campaign.category}. Deliverables: ${campaign.deliverables}. Budget: $${campaign.budgetMin}–$${campaign.budgetMax}. Apply on INFURIZZ.`;
+  const canonicalUrl = `/campaigns/${campaign.id}`;
+
+  return {
+    title,
+    description,
+    robots: isPublic
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+    alternates: isPublic
+      ? { canonical: canonicalUrl }
+      : undefined,
+    openGraph: {
+      title: `${title} | INFURIZZ`,
+      description,
+      url: `https://infurizzv1.vercel.app${canonicalUrl}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | INFURIZZ`,
+      description,
+    },
+  };
 }
 
 export default async function CampaignPage({
@@ -139,8 +175,28 @@ export default async function CampaignPage({
     conversation: app.conversation ? { id: app.conversation.id } : null,
   }));
 
+  const campaignJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: campaign.name,
+    description: `${campaign.name} campaign brief by ${campaign.brand.name}. Deliverables: ${campaign.deliverables}.`,
+    url: `https://infurizzv1.vercel.app/campaigns/${campaign.id}`,
+    provider: {
+      "@type": "Organization",
+      name: campaign.brand.name,
+      url: `https://infurizzv1.vercel.app/brands/${campaign.brand.id}`,
+    },
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "USD",
+      lowPrice: campaign.budgetMin,
+      highPrice: campaign.budgetMax,
+    },
+  };
+
   return (
     <Shell>
+      <JsonLd data={campaignJsonLd} />
       <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
         <div>
           <Link

@@ -9,7 +9,17 @@ import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Professional Network · Posts & Community",
-  description: "Share updates, project milestones, and collaboration announcements across the creator and brand ecosystem.",
+  description:
+    "Share updates, project milestones, and collaboration announcements across the creator and brand ecosystem.",
+  alternates: {
+    canonical: "/posts",
+  },
+  openGraph: {
+    title: "Professional Network · Posts & Community | INFURIZZ",
+    description:
+      "Share updates, project milestones, and collaboration announcements across the creator and brand ecosystem.",
+    url: "https://infurizzv1.vercel.app/posts",
+  },
 };
 
 export default async function PostsPage({

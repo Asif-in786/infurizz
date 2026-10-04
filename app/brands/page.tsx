@@ -7,7 +7,18 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/current";
 
 export const metadata: Metadata = {
-  title: "Brand Directory · Discover Brands & Open Requirements",
+  title: "Brand Directory · Discover Brands & Active Requirements",
+  description:
+    "Explore active brands hiring creators on INFURIZZ. Discover verified brand profiles, open campaign briefs, and partnership opportunities.",
+  alternates: {
+    canonical: "/brands",
+  },
+  openGraph: {
+    title: "Brand Directory · Discover Brands & Active Requirements | INFURIZZ",
+    description:
+      "Explore active brands hiring creators on INFURIZZ. Discover verified brand profiles, open campaign briefs, and partnership opportunities.",
+    url: "https://infurizzv1.vercel.app/brands",
+  },
 };
 
 export default async function BrandsDirectoryPage({

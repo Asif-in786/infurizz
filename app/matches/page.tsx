@@ -5,7 +5,13 @@ import { PageIntro, Shell } from "@/components/page-intro";
 import { getCurrentUser } from "@/lib/current";
 import { prisma } from "@/lib/prisma";
 
-export const metadata: Metadata = { title: "Matches" };
+export const metadata: Metadata = {
+  title: "Matches",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function MatchesPage() {
   const user = await getCurrentUser();

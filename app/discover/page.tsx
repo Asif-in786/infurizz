@@ -9,7 +9,20 @@ import { money, platformsFromJson } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { CATEGORIES, PLATFORMS, isCampaignPublished } from "@/lib/options";
 
-export const metadata: Metadata = { title: "Discover Creators · Marketplace Directory" };
+export const metadata: Metadata = {
+  title: "Discover Creators · Marketplace Directory",
+  description:
+    "Explore verified creator storefronts across Instagram, YouTube, X, LinkedIn, and Facebook. Filter by category, platform, location, and audience reach.",
+  alternates: {
+    canonical: "/discover",
+  },
+  openGraph: {
+    title: "Discover Creators · Marketplace Directory | INFURIZZ",
+    description:
+      "Explore verified creator storefronts across Instagram, YouTube, X, LinkedIn, and Facebook. Filter by category, platform, location, and audience reach.",
+    url: "https://infurizzv1.vercel.app/discover",
+  },
+};
 
 export default async function DiscoverPage({
   searchParams,

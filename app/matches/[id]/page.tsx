@@ -8,7 +8,13 @@ import { prisma } from "@/lib/prisma";
 
 import { RevolvingBorder } from "@/components/revolving-border";
 
-export const metadata: Metadata = { title: "Conversation" };
+export const metadata: Metadata = {
+  title: "Conversation",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function MatchPage({
   params,

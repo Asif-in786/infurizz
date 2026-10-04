@@ -11,7 +11,13 @@ import { getCurrentUser } from "@/lib/current";
 import { money } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
-export const metadata: Metadata = { title: "Account" };
+export const metadata: Metadata = {
+  title: "Account Settings",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function AccountPage() {
   const user = await getCurrentUser();

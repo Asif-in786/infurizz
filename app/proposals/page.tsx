@@ -10,6 +10,10 @@ import { withdrawApplication } from "@/lib/actions";
 export const metadata: Metadata = {
   title: "My Proposals · Opportunities & Applications",
   description: "Track submitted proposals, brief review status, and active brand collaborations.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function ProposalsPage({
