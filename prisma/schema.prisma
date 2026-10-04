@@ -1,0 +1,458 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String?
+  role         String     // "CREATOR" | "BRAND" | "UNASSIGNED"
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+  accounts     Account[]
+  creator      Creator?
+  brand        Brand?
+  messages     Message[]
+  skips        Skip[]
+  posts        Post[]
+  reactions    PostReaction[]
+  comments     PostComment[]
+}
+
+model Account {
+  id                String    @id @default(cuid())
+  userId            String
+  provider          String    // e.g. "google"
+  providerAccountId String    // Unique subject identifier from the identity provider
+  tokenType         String?
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         DateTime?
+  scope             String?
+  idToken           String?
+  revokedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Creator {
+  id            String                 @id @default(cuid())
+  userId        String                 @unique
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username      String?                @unique
+  avatarUrl     String?
+  name          String
+  bio           String
+  category      String
+  location      String
+  niche         String
+  audienceRange String
+  collabPrefs   String
+  languages     String                 @default("[\"English\"]")
+  contentTypes  String                 @default("[]")
+  isDemo        Boolean                @default(false)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @default(now()) @updatedAt
+  socials       SocialProfile[]
+  services      CreatorService[]
+  portfolio     CreatorPortfolioItem[]
+  interests     Interest[]
+  matches       Match[]
+  applications  CampaignApplication[]
+  orders        Order[]
+  socialAccounts SocialAccount[]
+}
+
+model SocialProfile {
+  id               String    @id @default(cuid())
+  creatorId        String
+  creator          Creator   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  platform         String    // "Instagram" | "TikTok" | "YouTube" | "X" | "Twitch" | "LinkedIn"
+  handle           String
+  audienceNote     String    @default("")
+  connectionStatus String    @default("NOT_CONNECTED") // "NOT_CONNECTED" | "CONNECTED"
+  verifiedAt       DateTime?
+  isSample         Boolean   @default(false)
+}
+
+model CreatorService {
+  id             String                @id @default(cuid())
+  creatorId      String
+  creator        Creator               @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  title          String
+  description    String
+  platform       String
+  price          Int                   // In USD
+  turnaroundDays Int                   @default(7)
+  deliverables   String
+  revisions      Int                   @default(1)
+  isActive       Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  applications   CampaignApplication[]
+  orders         Order[]
+
+  @@index([creatorId])
+}
+
+model CreatorPortfolioItem {
+  id          String   @id @default(cuid())
+  creatorId   String
+  creator     Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  title       String
+  platform    String
+  mediaUrl    String?
+  externalUrl String?
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([creatorId])
+}
+
+model Brand {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  about     String
+  location  String
+  isDemo    Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
+  campaigns Campaign[]
+  orders    Order[]
+}
+
+model Campaign {
+  id           String                @id @default(cuid())
+  brandId      String
+  brand        Brand                 @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  name         String
+  category     String
+  creatorNiche String
+  platforms    String
+  audienceRange String
+  location     String
+  budgetMin    Int
+  budgetMax    Int
+  deliverables String
+  status       String                @default("Open") // "Draft" | "Published" | "Open" | "Paused" | "Closed"
+  deadline     DateTime?
+  isDemo       Boolean               @default(false)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @default(now()) @updatedAt
+  interests    Interest[]
+  matches      Match[]
+  applications CampaignApplication[]
+  orders       Order[]
+}
+
+model CampaignApplication {
+  id           String          @id @default(cuid())
+  campaignId   String
+  creatorId    String
+  serviceId    String?
+  proposedRate Int             // In USD
+  pitchMessage String
+  status       String          @default("PENDING") // "PENDING" | "ACCEPTED" | "REJECTED" | "WITHDRAWN"
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  campaign     Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  creator      Creator         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  service      CreatorService? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  conversation Conversation?
+  order        Order?
+
+  @@unique([campaignId, creatorId])
+  @@index([campaignId])
+  @@index([creatorId])
+}
+
+model Interest {
+  id         String   @id @default(cuid())
+  creatorId  String
+  campaignId String
+  fromRole   String
+  createdAt  DateTime @default(now())
+  creator    Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([creatorId, campaignId, fromRole])
+}
+
+model Match {
+  id           String        @id @default(cuid())
+  creatorId    String
+  campaignId   String
+  createdAt    DateTime      @default(now())
+  creator      Creator       @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  conversation Conversation?
+
+  @@unique([creatorId, campaignId])
+}
+
+model Conversation {
+  id            String               @id @default(cuid())
+  matchId       String?              @unique
+  applicationId String?              @unique
+  createdAt     DateTime             @default(now())
+  match         Match?               @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  application   CampaignApplication? @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  order         Order?
+  messages      Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Skip {
+  id         String   @id @default(cuid())
+  userId     String
+  targetType String
+  targetId   String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
+}
+
+model Order {
+  id                     String              @id @default(cuid())
+  orderNumber            String              @unique
+  applicationId          String              @unique
+  application            CampaignApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  campaignId             String
+  campaign               Campaign            @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  creatorId              String
+  creator                Creator             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  brandId                String
+  brand                  Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  serviceId              String?
+  service                CreatorService?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  conversationId         String?             @unique
+  conversation           Conversation?       @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  // Immutable commercial & scope snapshot
+  agreedPriceInCents     Int
+  currency               String              @default("USD")
+  deliverablesSnapshot   String
+  turnaroundDaysSnapshot Int
+  revisionsIncluded      Int                 @default(1)
+  revisionsUsed          Int                 @default(0)
+  deadlineAt             DateTime
+
+  // Order lifecycle status:
+  // "PENDING" | "READY_TO_START" | "IN_PROGRESS" | "SUBMITTED" | "REVISION_REQUESTED" | "COMPLETED" | "CANCELLED" | "DISPUTED"
+  status                 String              @default("PENDING")
+
+  startedAt              DateTime?
+  submittedAt            DateTime?
+  completedAt            DateTime?
+  cancelledAt            DateTime?
+  cancellationReason     String?
+
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  @@index([creatorId])
+  @@index([brandId])
+  @@index([campaignId])
+  @@index([status])
+}
+
+model SocialAccount {
+  id                      String                   @id @default(cuid())
+  creatorId               String
+  creator                 Creator                  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  
+  platform                String                   // "Instagram" | "YouTube" | "TikTok" | "X" | "Twitch" | "LinkedIn"
+  platformAccountId       String                   // Provider's immutable channel/user ID
+  handle                  String                   // Current username/handle
+  displayName             String?
+  profileUrl              String
+  avatarUrl               String?
+  isPlatformVerifiedBadge Boolean                  @default(false) // Provider's platform verification badge only
+  
+  // Encrypted Credentials (AES-256-GCM)
+  encryptedAccessToken    String
+  accessTokenIv           String
+  accessTokenTag          String
+  encryptedRefreshToken   String?
+  refreshTokenIv          String?
+  refreshTokenTag         String?
+  tokenExpiresAt          DateTime?
+  tokenScope              String
+  
+  // Connection Lifecycle
+  connectionStatus        String                   @default("CONNECTED")
+  // "CONNECTED" | "SYNCING" | "FAILED" | "EXPIRED" | "REVOKED" | "DISCONNECTED"
+  
+  lastSyncedAt            DateTime?
+  lastSyncError           String?
+  
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  
+  snapshots               SocialMetricSnapshot[]
+  contentItems            SocialContentItem[]
+  audienceSnapshots       SocialAudienceSnapshot[]
+  syncLogs                SocialSyncLog[]
+
+  @@unique([creatorId, platform])
+  @@unique([platform, platformAccountId])
+  @@index([platform, handle])
+  @@index([connectionStatus])
+}
+
+model SocialMetricSnapshot {
+  id                        String         @id @default(cuid())
+  socialAccountId           String
+  socialAccount             SocialAccount  @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  
+  canonicalMetricName       String         // e.g. "AUDIENCE_FOLLOWER_COUNT", "CONTENT_LIFETIME_VIEWS"
+  providerMetricIdentifier  String         // Vendor field key (e.g. "subscriberCount")
+  
+  // Typed Metric Storage (BigInt counts vs. Decimal rates)
+  valueInt                  BigInt?        // Whole counts only (followers, views, likes)
+  valueDecimal              Decimal?       // Rates/percentages (engagement rate, growth)
+  metricValueType           String         // "INTEGER" | "DECIMAL"
+  unit                      String         @default("COUNT") // "COUNT" | "PERCENTAGE" | "SECONDS"
+  
+  // Traceable Provenance Metadata (No generic confidence float)
+  sourceType                String         // "PROVIDER_REPORTED" | "DERIVED"
+  calculationMethod         String?        // Mathematical formula when DERIVED
+  periodStart               DateTime?
+  periodEnd                 DateTime?
+  
+  // Partitioning & Freshness
+  snapshotDate              String         // Format: "YYYY-MM-DD" (UTC Date)
+  capturedAt                DateTime       @default(now())
+  freshnessState            String         @default("FRESH") // "FRESH" | "STALE" | "OUTDATED"
+
+  @@unique([socialAccountId, canonicalMetricName, snapshotDate])
+  @@index([socialAccountId, canonicalMetricName, snapshotDate])
+  @@index([snapshotDate])
+}
+
+model SocialContentItem {
+  id                    String         @id @default(cuid())
+  socialAccountId       String
+  socialAccount         SocialAccount  @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  
+  platformContentId     String         // Provider's media/video ID
+  contentType           String         // "VIDEO" | "REEL" | "POST" | "TWEET" | "BROADCAST"
+  url                   String
+  title                 String?
+  publishedAt           DateTime
+  
+  // Provider-Reported Performance Counts (Strictly BigInt for canonical integer counts)
+  viewCount             BigInt?
+  likeCount             BigInt?
+  commentCount          BigInt?
+  shareCount            BigInt?
+  saveCount             BigInt?
+  
+  lastSyncedAt          DateTime       @default(now())
+
+  @@unique([socialAccountId, platformContentId])
+  @@index([socialAccountId, publishedAt])
+}
+
+model SocialAudienceSnapshot {
+  id                    String         @id @default(cuid())
+  socialAccountId       String
+  socialAccount         SocialAccount  @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  
+  // Provider-Reported Demographic JSON (as returned by API)
+  genderBreakdown       String?        // JSON: { "male": "45.20", "female": "54.80" }
+  ageBreakdown          String?        // JSON: { "18-24": "30.50", "25-34": "49.20" }
+  countryBreakdown      String?        // JSON: { "US": "62.10", "GB": "14.30" }
+  
+  snapshotDate          String         // Format: "YYYY-MM-DD"
+  capturedAt            DateTime       @default(now())
+
+  @@unique([socialAccountId, snapshotDate])
+  @@index([socialAccountId, capturedAt])
+}
+
+model SocialSyncLog {
+  id                    String         @id @default(cuid())
+  socialAccountId       String
+  socialAccount         SocialAccount  @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  
+  trigger               String         // "OAUTH_INIT" | "SCHEDULED" | "MANUAL"
+  status                String         // "SUCCESS" | "FAILED" | "RATE_LIMITED" | "REVOKED"
+  metricsIngested       Int            @default(0)
+  durationMs            Int
+  errorMessage          String?
+  
+  createdAt             DateTime       @default(now())
+
+  @@index([socialAccountId, createdAt])
+}
+
+model Post {
+  id          String         @id @default(cuid())
+  authorId    String
+  author      User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content     String
+  mediaUrl    String?
+  postType    String         @default("UPDATE") // "ACHIEVEMENT" | "COLLAB_ANNOUNCEMENT" | "PROJECT" | "MILESTONE" | "SERVICE" | "PRODUCT_LAUNCH" | "HIRING" | "UPDATE"
+  tags        String         @default("[]") // JSON string of tags e.g. ["#tech", "#campaign"]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  reactions   PostReaction[]
+  comments    PostComment[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model PostReaction {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  reaction  String   @default("APPLAUD") // "LIKE" | "APPLAUD" | "INSIGHTFUL" | "COLLAB"
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([userId])
+}
+
