@@ -80,6 +80,20 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
 
   // Selected tab in Analytics (Step 5)
   const [analyticsPlatformTab, setAnalyticsPlatformTab] = useState<"ALL" | "YOUTUBE" | "INSTAGRAM">("ALL");
+  const [metaNotice, setMetaNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get("metaAuthNotice") === "unconfigured") {
+        setMetaNotice(
+          "Meta credentials (INSTAGRAM_CLIENT_ID / META_APP_ID) are required in environment variables to complete live Meta OAuth. Public handles remain verified under the PUBLIC HANDLE DECLARED standard."
+        );
+      } else if (sp.get("instagramConnected") === "true") {
+        setMetaNotice("Instagram professional account successfully authorized via Meta Graph API.");
+      }
+    }
+  }, []);
 
   // Keep timestamp fresh
   useEffect(() => {
@@ -179,15 +193,24 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
     { label: "Fireship", yt: "@fireship", ig: "@fireship_dev" },
   ];
 
-  // Calculate Combined KPI Metrics
-  const ytAudience = youtubeResult?.kpis?.totalAudience || 0;
-  const igAudience = instagramResult?.followers || 0;
-  const combinedAudience = ytAudience + igAudience;
+  // Calculate Verified KPI Metrics
+  const ytAudience = youtubeResult?.channel?.subscriberCount || youtubeResult?.kpis?.totalAudience || 0;
+  const isIgVerified = instagramResult?.connectionStatus === "CONNECTED" && Boolean(instagramResult?.followers);
+  const igAudience = isIgVerified ? Number(instagramResult?.followers || 0) : 0;
+  const totalVerifiedAudience = ytAudience + igAudience;
+  const bothPlatformsAvailable = ytAudience > 0 && igAudience > 0;
 
-  const totalViews = (youtubeResult?.kpis?.totalViews || 0) + (instagramResult?.reach || 0);
-  const totalEngagement = youtubeResult?.kpis?.totalEngagement || 0;
+  const ytViews = youtubeResult?.channel?.viewCount || youtubeResult?.kpis?.totalViews || 0;
+  const igReach = (instagramResult?.connectionStatus === "CONNECTED" && instagramResult?.reach) ? Number(instagramResult.reach) : 0;
+  const totalViews = ytViews + igReach;
+
+  const ytEngagement = youtubeResult?.kpis?.totalEngagement || 0;
+  const igEngagement = (instagramResult?.connectionStatus === "CONNECTED" && instagramResult?.engagement) ? Number(instagramResult.engagement) : 0;
+  const totalEngagement = ytEngagement + igEngagement;
+
   const avgEngagementRate = youtubeResult?.kpis?.avgEngagementRate || 0;
-  const totalContentCount = (youtubeResult?.kpis?.contentPublished || 0) + (instagramResult?.recentPosts?.length || 0);
+  const totalContentCount = (youtubeResult?.channel?.videoCount || youtubeResult?.kpis?.contentPublished || 0) +
+    (isIgVerified && (instagramResult?.mediaCount || instagramResult?.recentPosts?.length) ? Number(instagramResult.mediaCount || instagramResult.recentPosts?.length) : 0);
 
   // Ranked videos sorted by views descending
   const rankedVideos: YouTubeVideoItem[] = [...(youtubeResult?.videos || [])].sort(
@@ -196,6 +219,23 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
 
   return (
     <div className="space-y-12">
+      {metaNotice ? (
+        <div className="flex items-start justify-between border border-amber-300 bg-amber-50 p-4 text-xs text-amber-900 animate-fade-in">
+          <div>
+            <strong className="font-semibold">Meta Graph API Notice: </strong>
+            {metaNotice}
+          </div>
+          <button
+            type="button"
+            onClick={() => setMetaNotice(null)}
+            className="ml-4 font-bold text-amber-800 hover:text-ink"
+            aria-label="Dismiss notice"
+          >
+            ✕
+          </button>
+        </div>
+      ) : null}
+
       {/* 1. Mode Switcher & Progress Bar */}
       <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
@@ -719,13 +759,19 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
             <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
               <div className="card-interactive border border-line bg-card p-5">
                 <span className="text-[11px] font-semibold tracking-wider text-muted uppercase">
-                  Total Audience
+                  Total Verified Audience
                 </span>
                 <p className="mt-2 font-serif text-3xl font-medium text-ink">
-                  <AnimatedCounter value={combinedAudience} />
+                  <AnimatedCounter value={totalVerifiedAudience} />
                 </p>
                 <span className="mt-1 block text-xs text-muted">
-                  YouTube subs + IG followers
+                  {bothPlatformsAvailable
+                    ? "Verified across 2 connected platforms (YouTube + Instagram)"
+                    : ytAudience > 0
+                    ? "Verified across 1 platform (YouTube Data API v3)"
+                    : igAudience > 0
+                    ? "Verified across 1 platform (Meta Graph API)"
+                    : "Pending platform verification"}
                 </span>
               </div>
 
@@ -737,7 +783,9 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
                   <AnimatedCounter value={totalViews} />
                 </p>
                 <span className="mt-1 block text-xs text-muted">
-                  Lifetime synced video views
+                  {igReach > 0
+                    ? "YouTube views + Instagram verified reach"
+                    : "Lifetime synced YouTube video views"}
                 </span>
               </div>
 
@@ -914,28 +962,114 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
                   </a>
                 </div>
 
-                <span className="border border-line bg-paper px-2.5 py-1 text-[11px] font-semibold uppercase text-muted">
-                  Public Handle Declared
+                <span
+                  className={`border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
+                    instagramResult.connectionStatus === "CONNECTED"
+                      ? "border-emerald-600 bg-emerald-50 text-emerald-800"
+                      : "border-line bg-paper text-muted"
+                  }`}
+                >
+                  {instagramResult.connectionStatus === "CONNECTED"
+                    ? "● LIVE API DATA"
+                    : "● PUBLIC HANDLE DECLARED"}
                 </span>
               </div>
 
-              <div className="mt-4 border border-line bg-paper p-4 text-xs">
-                <p className="text-muted leading-relaxed">
-                  <strong className="text-ink">API Provenance Compliance Standard: </strong>
-                  {instagramResult.complianceNote}
-                </p>
-                <div className="mt-3 flex items-center justify-between border-t border-line/60 pt-3">
-                  <span className="font-mono text-[11px] text-oxblood font-medium">
-                    {instagramResult.authorizationNotice}
-                  </span>
-                  <Link
-                    href="/analytics#connections"
-                    className="inline-block border border-ink px-3 py-1 text-[11px] uppercase tracking-wider text-ink hover:bg-ink hover:text-paper transition-colors"
-                  >
-                    Authorize Account →
-                  </Link>
+              {instagramResult.connectionStatus === "CONNECTED" ? (
+                /* Authenticated Instagram Analytics */
+                <div className="mt-6 space-y-6">
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div className="border-r border-line/60 pr-4">
+                      <span className="text-[11px] text-muted uppercase">Followers</span>
+                      <p className="mt-1 font-serif text-2xl text-ink">
+                        <AnimatedCounter value={instagramResult.followers || 0} />
+                      </p>
+                    </div>
+                    <div className="border-r border-line/60 pr-4">
+                      <span className="text-[11px] text-muted uppercase">Media / Content</span>
+                      <p className="mt-1 font-serif text-2xl text-ink">
+                        <AnimatedCounter value={instagramResult.mediaCount || instagramResult.recentPosts?.length || 0} />
+                      </p>
+                    </div>
+                    <div className="border-r border-line/60 pr-4">
+                      <span className="text-[11px] text-muted uppercase">Verified Reach</span>
+                      <p className="mt-1 font-serif text-2xl text-ink">
+                        <AnimatedCounter value={instagramResult.reach || 0} />
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-muted uppercase">Avg Engagement</span>
+                      <p className="mt-1 font-serif text-2xl text-ink">
+                        {instagramResult.engagementRate || (instagramResult.engagement ? Number(instagramResult.engagement).toLocaleString() : "Calculated")}
+                      </p>
+                    </div>
+                  </div>
+
+                  {instagramResult.recentPosts && instagramResult.recentPosts.length > 0 ? (
+                    <div className="border-t border-line pt-4">
+                      <h5 className="font-serif text-lg text-ink mb-3">Recent Instagram Media</h5>
+                      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        {instagramResult.recentPosts.map((post) => (
+                          <div key={post.id} className="border border-line bg-paper p-3 text-xs">
+                            <p className="line-clamp-2 text-ink font-medium">{post.caption || "Instagram Media"}</p>
+                            <div className="mt-2 flex justify-between text-muted text-[11px]">
+                              <span>Likes: {post.likeCount != null ? post.likeCount.toLocaleString() : "—"}</span>
+                              <span>Comments: {post.commentCount != null ? post.commentCount.toLocaleString() : "—"}</span>
+                            </div>
+                            <a href={post.permalink} target="_blank" rel="noreferrer" className="mt-2 block text-oxblood hover:underline text-[11px]">View Post ↗</a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              </div>
+              ) : (
+                /* Unauthorized Public Handle State */
+                <div className="mt-6 space-y-4">
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 border-b border-line pb-4">
+                    <div className="border-r border-line/60 pr-4">
+                      <span className="text-[11px] text-muted uppercase">Followers</span>
+                      <p className="mt-1 font-serif text-lg text-muted italic">Authorization Required</p>
+                      <span className="text-[10px] text-muted">Meta OAuth needed</span>
+                    </div>
+                    <div className="border-r border-line/60 pr-4">
+                      <span className="text-[11px] text-muted uppercase">Media Count</span>
+                      <p className="mt-1 font-serif text-lg text-muted italic">Authorization Required</p>
+                      <span className="text-[10px] text-muted">Meta OAuth needed</span>
+                    </div>
+                    <div className="border-r border-line/60 pr-4">
+                      <span className="text-[11px] text-muted uppercase">Verified Reach</span>
+                      <p className="mt-1 font-serif text-lg text-muted italic">Authorization Required</p>
+                      <span className="text-[10px] text-muted">Meta OAuth needed</span>
+                    </div>
+                    <div>
+                      <span className="text-[11px] text-muted uppercase">Avg Post ER</span>
+                      <p className="mt-1 font-serif text-lg text-muted italic">Authorization Required</p>
+                      <span className="text-[10px] text-muted">Meta OAuth needed</span>
+                    </div>
+                  </div>
+
+                  <div className="border border-line bg-paper p-5 text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div>
+                        <h5 className="font-serif text-base text-ink font-semibold">
+                          Connect your Instagram professional account to unlock verified performance analytics.
+                        </h5>
+                        <p className="mt-1 text-muted leading-relaxed max-w-xl">
+                          {instagramResult.complianceNote}
+                        </p>
+                      </div>
+
+                      <a
+                        href={`/api/auth/instagram?returnTo=/live-example&handle=${encodeURIComponent(instagramResult.handle)}`}
+                        className="btn-tactile inline-flex items-center justify-center whitespace-nowrap bg-ink px-5 py-2.5 text-xs font-semibold tracking-wider text-paper uppercase hover:bg-oxblood transition-colors shadow-sm"
+                      >
+                        Connect Instagram →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : null}
 
@@ -1085,20 +1219,28 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
                 <div className="border border-line bg-paper p-4">
                   <div className="flex justify-between text-xs">
                     <span className="font-medium text-ink">YouTube Dominance</span>
-                    <span className="font-mono text-oxblood font-semibold">Primary Reach Engine</span>
+                    <span className="font-mono text-oxblood font-semibold">
+                      {youtubeResult?.isLiveApi ? "● LIVE API DATA" : "● DATA VERIFIED"}
+                    </span>
                   </div>
                   <p className="mt-1 text-xs text-muted">
-                    YouTube accounts for {combinedAudience > 0 ? Math.round((ytAudience / combinedAudience) * 100) : 100}% of verified audience with {totalViews.toLocaleString()} video impressions.
+                    YouTube accounts for {totalVerifiedAudience > 0 ? Math.round((ytAudience / totalVerifiedAudience) * 100) : 100}% of verified audience with {totalViews.toLocaleString()} lifetime views.
                   </p>
                 </div>
 
                 <div className="border border-line bg-paper p-4">
                   <div className="flex justify-between text-xs">
-                    <span className="font-medium text-ink">Instagram Engagement</span>
-                    <span className="font-mono text-muted">Awaiting Meta OAuth</span>
+                    <span className="font-medium text-ink">Instagram Intelligence</span>
+                    <span className="font-mono text-muted">
+                      {instagramResult?.connectionStatus === "CONNECTED"
+                        ? "● LIVE API DATA"
+                        : "● PUBLIC HANDLE DECLARED"}
+                    </span>
                   </div>
                   <p className="mt-1 text-xs text-muted">
-                    Requires creator account connection for comparison of impressions vs YouTube view counts.
+                    {instagramResult?.connectionStatus === "CONNECTED"
+                      ? `Instagram account verified with active Meta Graph API insights.`
+                      : `Connect your Instagram professional account to unlock verified performance analytics.`}
                   </p>
                 </div>
               </div>
