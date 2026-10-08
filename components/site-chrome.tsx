@@ -16,6 +16,7 @@ const publicLinks: NavItem[] = [
   { href: "/discover", label: "Creators" },
   { href: "/brands", label: "Brands" },
   { href: "/campaigns", label: "Campaigns" },
+  { href: "/live-example", label: "Live Example" },
   { href: "/for-brands", label: "For Brands" },
   { href: "/for-creators", label: "For Creators" },
 ];
@@ -23,6 +24,7 @@ const publicLinks: NavItem[] = [
 const creatorLinks: NavItem[] = [
   { href: "/posts", label: "Posts" },
   { href: "/discover", label: "Discover" },
+  { href: "/live-example", label: "Live Example" },
   { href: "/conversations", label: "Messages" },
   { href: "/proposals", label: "Proposals" },
   { href: "/analytics", label: "Analytics" },
@@ -33,6 +35,7 @@ const brandLinks: NavItem[] = [
   { href: "/posts", label: "Posts" },
   { href: "/campaigns", label: "Campaigns" },
   { href: "/discover", label: "Discover" },
+  { href: "/live-example", label: "Live Example" },
   { href: "/conversations", label: "Messages" },
   { href: "/account", label: "Account" },
 ];
@@ -280,6 +283,7 @@ export function SiteFooter({ role }: { role?: string | null }) {
             <>
               <Link href="/posts" className="hover:text-ink">Posts</Link>
               <Link href="/discover" className="hover:text-ink">Discover</Link>
+              <Link href="/live-example" className="hover:text-ink">Live Example</Link>
               <Link href="/proposals" className="hover:text-ink">Proposals</Link>
               <Link href="/analytics" className="hover:text-ink">Analytics</Link>
               <Link href="/conversations" className="hover:text-ink">Messages</Link>
@@ -289,6 +293,7 @@ export function SiteFooter({ role }: { role?: string | null }) {
               <Link href="/posts" className="hover:text-ink">Posts</Link>
               <Link href="/campaigns" className="hover:text-ink">Campaigns</Link>
               <Link href="/discover" className="hover:text-ink">Discover</Link>
+              <Link href="/live-example" className="hover:text-ink">Live Example</Link>
               <Link href="/conversations" className="hover:text-ink">Messages</Link>
             </>
           ) : (
@@ -296,6 +301,7 @@ export function SiteFooter({ role }: { role?: string | null }) {
               <Link href="/discover" className="hover:text-ink">Creators</Link>
               <Link href="/brands" className="hover:text-ink">Brands</Link>
               <Link href="/campaigns" className="hover:text-ink">Campaigns</Link>
+              <Link href="/live-example" className="hover:text-ink">Live Example</Link>
               <Link href="/for-creators" className="hover:text-ink">For Creators</Link>
               <Link href="/for-brands" className="hover:text-ink">For Brands</Link>
             </>

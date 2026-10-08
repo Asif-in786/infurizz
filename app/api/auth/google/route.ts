@@ -15,6 +15,8 @@ export async function GET(request: Request) {
   const origin = getAppOrigin(request);
   const redirectUri = `${origin}/api/auth/google/callback`;
   const state = generateOAuthState();
+  const url = new URL(request.url);
+  const returnTo = url.searchParams.get("returnTo");
 
   const jar = await cookies();
   jar.set("infurizz_oauth_state", state, {
@@ -24,6 +26,16 @@ export async function GET(request: Request) {
     path: "/",
     maxAge: 60 * 10, // 10 minutes
   });
+
+  if (returnTo && returnTo.startsWith("/")) {
+    jar.set("infurizz_oauth_return_to", returnTo, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 10,
+    });
+  }
 
   const authUrl = getGoogleAuthorizationUrl(state, redirectUri);
   return NextResponse.redirect(authUrl);

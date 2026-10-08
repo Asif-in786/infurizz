@@ -29,6 +29,13 @@ export async function GET(request: Request) {
     const redirectUri = `${origin}/api/auth/google/callback`;
     const { role } = await handleGoogleCallback(code, redirectUri);
 
+    const returnTo = jar.get("infurizz_oauth_return_to")?.value;
+    jar.delete("infurizz_oauth_return_to");
+
+    if (returnTo && returnTo.startsWith("/")) {
+      return NextResponse.redirect(new URL(returnTo, origin));
+    }
+
     if (role === "UNASSIGNED") {
       return NextResponse.redirect(new URL("/onboarding/role", origin));
     }
