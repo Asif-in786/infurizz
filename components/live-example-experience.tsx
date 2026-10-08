@@ -225,10 +225,26 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
 
         {/* Live Status Pill */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 border border-emerald-600/40 bg-emerald-50 px-3 py-1 text-xs text-emerald-800">
-            <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
+          <div className={`flex items-center gap-2 border px-3 py-1 text-xs ${
+            youtubeResult?.isLiveApi
+              ? "border-emerald-600/40 bg-emerald-50 text-emerald-800"
+              : youtubeResult?.isDatabaseSnapshot
+              ? "border-amber-600/40 bg-amber-50 text-amber-800"
+              : "border-sky-600/40 bg-sky-50 text-sky-800"
+          }`}>
+            <span className={`h-2 w-2 rounded-full ${
+              youtubeResult?.isLiveApi
+                ? "bg-emerald-600 animate-pulse"
+                : youtubeResult?.isDatabaseSnapshot
+                ? "bg-amber-600"
+                : "bg-sky-600"
+            }`} />
             <span className="font-mono text-[11px] font-semibold tracking-wider uppercase">
-              {youtubeResult?.isLiveApi ? "LIVE API CONNECTED" : "DATA VERIFIED"}
+              {youtubeResult?.isLiveApi
+                ? "LIVE API DATA"
+                : youtubeResult?.isDatabaseSnapshot
+                ? "STORED SNAPSHOT DATA"
+                : "DEMO DATA"}
             </span>
           </div>
 
@@ -826,8 +842,18 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="border border-emerald-600 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 uppercase">
-                    ✓ Verified Data
+                  <span className={`border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
+                    youtubeResult.isLiveApi
+                      ? "border-emerald-600 bg-emerald-50 text-emerald-800"
+                      : youtubeResult.isDatabaseSnapshot
+                      ? "border-amber-600 bg-amber-50 text-amber-800"
+                      : "border-sky-600 bg-sky-50 text-sky-800"
+                  }`}>
+                    {youtubeResult.isLiveApi
+                      ? "● LIVE API DATA"
+                      : youtubeResult.isDatabaseSnapshot
+                      ? "● STORED SNAPSHOT DATA"
+                      : "● DEMO DATA"}
                   </span>
                 </div>
               </div>
