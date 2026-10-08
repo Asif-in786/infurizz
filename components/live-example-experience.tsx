@@ -67,11 +67,34 @@ export function LiveExampleExperience({ initialUser }: LiveExampleExperienceProp
   const [youtubeInput, setYoutubeInput] = useState("@GoogleDevelopers");
   const [instagramInput, setInstagramInput] = useState("@infurizz.official");
 
+const DEFAULT_INITIAL_INSTAGRAM: InstagramResolveResult = {
+  success: true,
+  platform: "Instagram",
+  handle: "@infurizz.official",
+  profileUrl: "https://instagram.com/infurizz.official",
+  connectionStatus: "PUBLIC_HANDLE_DECLARED",
+  isLiveApi: false,
+  isDatabaseSnapshot: false,
+  requiresAuthorization: true,
+  authorizationNotice: "Connect your Instagram professional account to unlock verified performance analytics.",
+  complianceNote:
+    "Meta Graph API requires an authorized Instagram Professional (Creator or Business) account to access verified reach, impressions, audience demographics, and media metrics. Unofficial scraping is strictly prohibited under Meta Platform Terms.",
+  followers: null,
+  mediaCount: null,
+  reach: null,
+  impressions: null,
+  likes: null,
+  comments: null,
+  engagement: null,
+  engagementRate: null,
+  recentPosts: [],
+};
+
   // Live Query Results
   const [isResolving, setIsResolving] = useState(false);
   const [resolveError, setResolveError] = useState<string | null>(null);
   const [youtubeResult, setYoutubeResult] = useState<YouTubeChannelResult | null>(null);
-  const [instagramResult, setInstagramResult] = useState<InstagramResolveResult | null>(null);
+  const [instagramResult, setInstagramResult] = useState<InstagramResolveResult | null>(DEFAULT_INITIAL_INSTAGRAM);
 
   // Live Refresh State
   const [isRefreshing, setIsRefreshing] = useState(false);
