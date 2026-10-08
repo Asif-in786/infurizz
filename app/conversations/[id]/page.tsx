@@ -172,7 +172,10 @@ export default async function ConversationPage({
         <ol className="mt-4 max-w-3xl space-y-4">
           {conversation.messages.length === 0 ? (
             <li className="border border-line bg-card p-6 text-center text-sm text-muted">
-              No messages yet in this conversation. Start the dialogue below.
+              <p className="font-serif text-xl text-ink">Dialogue Initialized</p>
+              <p className="mt-2 text-xs max-w-md mx-auto leading-relaxed">
+                Connect directly regarding campaign deliverables, creative direction, draft submissions, and timeline expectations.
+              </p>
             </li>
           ) : null}
 
@@ -183,15 +186,19 @@ export default async function ConversationPage({
             return (
               <li
                 key={message.id}
-                className={`max-w-[min(100%,32rem)] border-t border-line py-4 ${
-                  mine ? "ml-auto border-ink bg-card px-4" : "bg-paper"
+                className={`max-w-[min(100%,32rem)] p-4 border ${
+                  mine ? "ml-auto border-ink bg-card shadow-sm" : "border-line bg-paper"
                 }`}
               >
                 <div className="flex items-center justify-between gap-3 text-xs text-muted">
-                  <span className="font-medium tracking-[0.1em] text-ink uppercase">{label}</span>
-                  <span>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  <span className="font-medium tracking-[0.1em] text-ink uppercase">
+                    {label} {mine ? "(You)" : ""}
+                  </span>
+                  <span className="font-mono text-[11px]">
+                    {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
                 </div>
-                <p className="mt-2 text-sm leading-6 whitespace-pre-wrap">{message.body}</p>
+                <p className="mt-2 text-sm leading-6 whitespace-pre-wrap text-ink">{message.body}</p>
               </li>
             );
           })}

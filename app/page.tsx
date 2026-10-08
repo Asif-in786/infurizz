@@ -47,10 +47,10 @@ const homeStructuredData = {
 };
 
 const steps = [
-  ["Discover", "Creators review campaigns. Brands review creator profiles."],
-  ["Interest", "Either side can say they want to work together."],
-  ["Mutual match", "A match exists only when both sides have expressed interest."],
-  ["Connect", "The match opens a basic conversation stored in this prototype."],
+  ["Discover", "Creators review campaign briefs. Brands review verified creator storefronts."],
+  ["Interest", "Either party can express interest or submit a custom collaboration pitch."],
+  ["Mutual Match", "A match desk unlocks only when both sides have confirmed reciprocal interest."],
+  ["Connect", "Direct communication, scoped deliverable milestones, and production workspace."],
 ];
 
 export default function HomePage() {

@@ -99,8 +99,12 @@ export default async function CreatorStorefrontPage({
     prisma.match.findMany({ where: { creatorId: creator.id }, include: { campaign: true } }),
     prisma.post.findMany({
       where: { authorId: creator.userId },
+      include: {
+        reactions: true,
+        comments: true,
+      },
       orderBy: { createdAt: "desc" },
-      take: 4,
+      take: 6,
     }),
   ]);
 
@@ -285,45 +289,195 @@ export default async function CreatorStorefrontPage({
     sameAs: creator.socials?.map((s) => s.handle).filter(Boolean) || [],
   };
 
+  const minServicePrice =
+    creator.services.length > 0 ? Math.min(...creator.services.map((s) => s.price)) : null;
+  const minTurnaroundDays =
+    creator.services.length > 0 ? Math.min(...creator.services.map((s) => s.turnaroundDays)) : null;
+
+  const socialLinks = creator.socials.map((s) => {
+    const auth = authAccountMap.get(s.platform);
+    const handle = auth?.handle || s.handle;
+    const cleanHandle = handle.replace(/^@/, "");
+    let href = "#";
+    if (auth?.profileUrl) {
+      href = auth.profileUrl;
+    } else {
+      switch (s.platform.toLowerCase()) {
+        case "youtube":
+          href = `https://youtube.com/@${cleanHandle}`;
+          break;
+        case "instagram":
+          href = `https://instagram.com/${cleanHandle}`;
+          break;
+        case "tiktok":
+          href = `https://tiktok.com/@${cleanHandle}`;
+          break;
+        case "x":
+        case "twitter":
+          href = `https://x.com/${cleanHandle}`;
+          break;
+        case "linkedin":
+          href = cleanHandle.startsWith("http") ? cleanHandle : `https://linkedin.com/in/${cleanHandle}`;
+          break;
+        case "twitch":
+          href = `https://twitch.tv/${cleanHandle}`;
+          break;
+        default:
+          href = cleanHandle.startsWith("http") ? cleanHandle : `https://${cleanHandle}`;
+      }
+    }
+    return {
+      platform: s.platform,
+      handle,
+      href,
+      isAuth: Boolean(auth),
+      isVerified: Boolean(auth?.isPlatformVerifiedBadge),
+    };
+  });
+
   return (
     <Shell>
       <JsonLd data={creatorJsonLd} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <SampleMark show={creator.isDemo} />
-          <div className="mt-2 flex items-center gap-3">
-            <span className="border border-line bg-card px-2.5 py-1 text-xs tracking-[0.14em] text-muted uppercase">
+          <div className="mt-2 flex flex-wrap items-center gap-2.5">
+            <span className="border border-line bg-card px-2.5 py-1 text-xs tracking-[0.14em] text-muted uppercase font-mono">
               {creator.category}
             </span>
-            <span className="text-xs text-muted">{creator.location}</span>
+            <span className="border border-line bg-card px-2.5 py-1 text-xs text-muted">
+              {creator.location}
+            </span>
+            {footprint.authenticatedAccountsCount > 0 ? (
+              <span className="border border-oxblood/30 bg-oxblood/10 px-2 py-0.5 text-[10px] text-oxblood uppercase font-mono tracking-wider">
+                ✓ Provider-Connected
+              </span>
+            ) : null}
           </div>
         </div>
-        {ownsProfile ? (
-          <Link
-            href="/account"
-            className="inline-flex min-h-11 items-center gap-1.5 border border-ink/20 px-4 text-xs tracking-[0.1em] text-ink uppercase transition-colors hover:border-ink"
-          >
-            Edit your storefront & packages ↗
-          </Link>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-3">
+          {viewer?.brand && brandCampaigns.length > 0 && !ownsProfile ? (
+            <a
+              href="#brand-inquiry"
+              className="btn-tactile inline-flex min-h-11 items-center gap-1.5 bg-ink px-4 text-xs tracking-[0.1em] text-paper uppercase hover:bg-oxblood transition-colors"
+            >
+              <span>Invite to Campaign</span>
+              <span className="icon-arrow-motion">↓</span>
+            </a>
+          ) : !viewer ? (
+            <Link
+              href="/join?role=brand"
+              className="btn-tactile inline-flex min-h-11 items-center gap-1.5 bg-ink px-4 text-xs tracking-[0.1em] text-paper uppercase hover:bg-oxblood transition-colors"
+            >
+              <span>Work with Creator</span>
+              <span className="icon-arrow-motion">→</span>
+            </Link>
+          ) : null}
+
+          {creator.services.length > 0 ? (
+            <a
+              href="#services-packages"
+              className="btn-tactile inline-flex min-h-11 items-center border border-line bg-paper px-4 text-xs tracking-[0.1em] text-ink uppercase hover:border-ink transition-colors"
+            >
+              View Packages ({creator.services.length})
+            </a>
+          ) : null}
+
+          {ownsProfile ? (
+            <Link
+              href="/account"
+              className="inline-flex min-h-11 items-center gap-1.5 border border-ink/20 px-4 text-xs tracking-[0.1em] text-ink uppercase transition-colors hover:border-ink"
+            >
+              Edit your storefront &amp; packages ↗
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       {/* Creator Storefront Header */}
-      <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-end">
+      <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-start">
         <Monogram name={creator.name} />
-        <div>
-          <h1 className="font-serif text-[clamp(2.6rem,7vw,4.8rem)] leading-[0.9] tracking-[-0.04em]">
-            {creator.name}
-          </h1>
-          {creator.username ? (
-            <p className="mt-1 font-mono text-sm text-oxblood">@{creator.username}</p>
-          ) : null}
+        <div className="flex-1">
+          <div className="flex flex-wrap items-baseline gap-3">
+            <h1 className="font-serif text-[clamp(2.6rem,7vw,4.8rem)] leading-[0.9] tracking-[-0.04em] text-ink">
+              {creator.name}
+            </h1>
+            {creator.username ? (
+              <span className="font-mono text-sm text-oxblood">@{creator.username}</span>
+            ) : null}
+          </div>
           <p className="mt-4 max-w-3xl text-base leading-7 text-muted sm:text-lg">{creator.bio}</p>
+
+          {/* Social Platforms & Direct Profiles */}
+          {socialLinks.length > 0 ? (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted mr-1">
+                Platform Channels:
+              </span>
+              {socialLinks.map((s) => (
+                <a
+                  key={s.platform}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="card-interactive inline-flex items-center gap-1.5 border border-line bg-card px-2.5 py-1 text-xs text-ink hover:border-ink hover:text-oxblood transition-colors"
+                >
+                  <span className="font-medium">{s.platform}</span>
+                  <span className="font-mono text-[11px] text-muted">{s.handle}</span>
+                  {s.isAuth ? (
+                    <span className="border border-oxblood/30 bg-oxblood/10 px-1.5 py-0.2 text-[9px] text-oxblood uppercase font-mono tracking-wider" title="Provider Account Connected">
+                      Connected
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-muted">Link</span>
+                  )}
+                  <span className="text-[10px] text-muted">↗</span>
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Professional Media Kit Specification Grid */}
+      <div className="mt-8 grid gap-3 border-y border-line py-5 sm:grid-cols-2 lg:grid-cols-4 bg-card/40">
+        <div className="p-3">
+          <dt className="text-[11px] font-mono uppercase tracking-wider text-muted">Audience Scale</dt>
+          <dd className="mt-1 font-serif text-2xl text-ink font-medium">
+            {footprint.totalFootprint > 0
+              ? `${Number(footprint.totalFootprint).toLocaleString()}+ Reach`
+              : creator.audienceRange}
+          </dd>
+          <span className="text-[11px] text-muted">Tier: {creator.audienceRange}</span>
+        </div>
+
+        <div className="p-3">
+          <dt className="text-[11px] font-mono uppercase tracking-wider text-muted">Primary Focus</dt>
+          <dd className="mt-1 font-serif text-2xl text-ink font-medium">{creator.niche}</dd>
+          <span className="text-[11px] text-muted">Category: {creator.category}</span>
+        </div>
+
+        <div className="p-3">
+          <dt className="text-[11px] font-mono uppercase tracking-wider text-muted">Commercial Storefront</dt>
+          <dd className="mt-1 font-serif text-2xl text-ink font-medium">
+            {minServicePrice !== null ? `From ${money(minServicePrice)}` : "Custom Scope"}
+          </dd>
+          <span className="text-[11px] text-muted">
+            {creator.services.length > 0 ? `${creator.services.length} active deliverable packages` : "Inquire via campaign brief"}
+          </span>
+        </div>
+
+        <div className="p-3">
+          <dt className="text-[11px] font-mono uppercase tracking-wider text-muted">Standard Turnaround</dt>
+          <dd className="mt-1 font-serif text-2xl text-ink font-medium">
+            {minTurnaroundDays ? `${minTurnaroundDays} Days` : "7 Days Average"}
+          </dd>
+          <span className="text-[11px] text-muted">Guaranteed brief execution</span>
         </div>
       </div>
 
       {/* Badges / Taxonomy */}
-      <div className="mt-8 flex flex-wrap gap-2 border-t border-line pt-6">
+      <div className="mt-5 flex flex-wrap gap-2">
         <span className="border border-line bg-card px-3 py-1 text-xs text-muted">
           Niche: <strong className="text-ink">{creator.niche}</strong>
         </span>
@@ -373,11 +527,11 @@ export default async function CreatorStorefrontPage({
 
       {/* Packages / Services Storefront */}
       <ScrollReveal className="mt-14">
-        <section>
+        <section id="services-packages">
           <div className="flex items-baseline justify-between gap-4 border-b border-ink pb-4">
             <div>
               <p className="text-[11px] tracking-[0.2em] text-oxblood uppercase">Storefront</p>
-              <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Services & Packages</h2>
+              <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Services &amp; Packages</h2>
             </div>
             <p className="text-xs text-muted">Fixed-scope deliverables with guaranteed turnaround</p>
           </div>
@@ -503,32 +657,114 @@ export default async function CreatorStorefrontPage({
         />
       </ScrollReveal>
 
-      {/* Professional Posts & Achievements */}
-      {creatorPosts.length > 0 ? (
-        <section className="mt-14">
+      {/* Professional Activity, Milestones & Achievements */}
+      <ScrollReveal className="mt-14">
+        <section>
           <div className="flex items-baseline justify-between gap-4 border-b border-ink pb-4">
             <div>
-              <p className="text-[11px] tracking-[0.2em] text-oxblood uppercase">Activity</p>
-              <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Professional Updates &amp; Milestones</h2>
+              <p className="text-[11px] tracking-[0.2em] text-oxblood uppercase">Track Record</p>
+              <h2 className="mt-1 font-serif text-3xl sm:text-4xl">Activity &amp; Milestones</h2>
             </div>
-            <Link href="/posts" className="text-xs text-muted hover:text-ink">
-              View Community Feed →
+            <Link href="/posts" className="text-xs text-muted hover:text-ink transition-colors">
+              View Ecosystem Feed ↗
             </Link>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {creatorPosts.map((p) => (
-              <div key={p.id} className="card-interactive border border-line bg-card p-5">
-                <span className="text-[10px] font-semibold text-oxblood uppercase tracking-wider">{p.postType}</span>
-                <p className="mt-2 text-xs leading-relaxed text-ink line-clamp-3 whitespace-pre-line">{p.content}</p>
-                <span className="mt-3 block text-[11px] text-muted">
-                  {new Date(p.createdAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
-                </span>
-              </div>
-            ))}
-          </div>
+          {creatorPosts.length === 0 ? (
+            <div className="mt-6 border border-line bg-card p-8 text-center">
+              <p className="font-serif text-xl text-ink">Active Creator Storefront</p>
+              <p className="mt-2 max-w-md mx-auto text-xs leading-relaxed text-muted">
+                {ownsProfile
+                  ? "Share collaboration milestones, new service launches, or audience updates with brands across INFURIZZ."
+                  : `${creator.name} is open for brand collaborations. Inquire directly or review fixed-scope service packages above.`}
+              </p>
+              {ownsProfile ? (
+                <Link
+                  href="/posts"
+                  className="btn-tactile mt-5 inline-flex min-h-10 items-center justify-center bg-ink px-4 text-xs tracking-wider uppercase text-paper hover:bg-oxblood transition-colors"
+                >
+                  Publish Milestone or Update ↗
+                </Link>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {creatorPosts.map((p) => {
+                let tags: string[] = [];
+                try {
+                  tags = JSON.parse(p.tags);
+                } catch {
+                  tags = [];
+                }
+
+                const postTypeLabels: Record<string, { label: string; icon: string }> = {
+                  ACHIEVEMENT: { label: "Recognition", icon: "🏆" },
+                  COLLAB_ANNOUNCEMENT: { label: "Collaboration", icon: "🤝" },
+                  PROJECT: { label: "Project Showcase", icon: "🚀" },
+                  MILESTONE: { label: "Milestone", icon: "🎯" },
+                  SERVICE: { label: "Service Launch", icon: "📦" },
+                  PRODUCT_LAUNCH: { label: "Product Launch", icon: "✨" },
+                  HIRING: { label: "Creator Callout", icon: "📢" },
+                  UPDATE: { label: "Professional Update", icon: "📝" },
+                };
+
+                const meta = postTypeLabels[p.postType] || { label: p.postType, icon: "•" };
+
+                return (
+                  <article
+                    key={p.id}
+                    className="card-interactive flex flex-col justify-between border border-line bg-card p-5 transition-colors hover:border-ink/40"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 border-b border-line pb-3">
+                        <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold text-oxblood uppercase tracking-wider">
+                          <span>{meta.icon}</span>
+                          <span>{meta.label}</span>
+                        </span>
+                        <span className="font-mono text-[11px] text-muted">
+                          {new Date(p.createdAt).toLocaleDateString([], {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-xs leading-relaxed text-ink line-clamp-4 whitespace-pre-line">
+                        {p.content}
+                      </p>
+
+                      {tags.length > 0 ? (
+                        <div className="mt-3 flex flex-wrap gap-1">
+                          {tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className="border border-line bg-paper px-1.5 py-0.5 text-[10px] font-mono text-muted">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-[11px] text-muted">
+                      <div className="flex items-center gap-3 font-mono">
+                        <span>{p.reactions.length} reaction{p.reactions.length === 1 ? "" : "s"}</span>
+                        <span>·</span>
+                        <span>{p.comments.length} comment{p.comments.length === 1 ? "" : "s"}</span>
+                      </div>
+                      <Link
+                        href={`/posts?type=${p.postType}`}
+                        className="text-oxblood hover:text-ink transition-colors font-medium"
+                      >
+                        Discussion ↗
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </section>
-      ) : null}
+      </ScrollReveal>
 
       {/* Social Platforms & Creator Intelligence */}
       <section className="mt-14">

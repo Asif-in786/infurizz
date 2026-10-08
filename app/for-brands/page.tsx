@@ -18,11 +18,11 @@ export const metadata: Metadata = {
 };
 
 const path = [
-  ["Join INFURIZZ", "Choose Brand and describe the company."],
-  ["Create a campaign", "Name, category, creator niche, platforms, audience range, location, budget, and deliverables."],
-  ["Discover creators", "Review profiles against the campaign you select."],
-  ["Express interest", "An invite is interest from the brand. It is not a booking."],
-  ["Match", "The creator must have interest in that same campaign before a conversation opens."],
+  ["Join INFURIZZ", "Choose Brand and open your account."],
+  ["Publish a Campaign Brief", "Name, category, creator niche, platforms, audience range, location, budget range, and deliverables."],
+  ["Discover Creators", "Review verified creator storefronts, multi-platform analytics, and deterministic fit scoring."],
+  ["Express Interest / Invite", "Invite creators directly or review proposals submitted to your brief."],
+  ["Mutual Match & Contract", "Mutual interest automatically unlocks a collaboration desk with messaging and order tracking."],
 ];
 
 export default function ForBrandsPage() {

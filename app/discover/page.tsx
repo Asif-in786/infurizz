@@ -129,6 +129,20 @@ export default async function DiscoverPage({
       },
       services: { where: { isActive: true }, orderBy: { price: "asc" } },
       portfolio: true,
+      user: {
+        select: {
+          posts: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: {
+              id: true,
+              postType: true,
+              content: true,
+              createdAt: true,
+            },
+          },
+        },
+      },
     },
     orderBy: { name: "asc" },
   });
@@ -239,6 +253,40 @@ export default async function DiscoverPage({
         >
           Community Posts ↗
         </Link>
+      </div>
+
+      {/* Matchmaking Protocol Stepper */}
+      <div className="mt-6 border border-line bg-card/60 p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-3">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-oxblood font-semibold">
+            INFURIZZ Matchmaking Protocol
+          </span>
+          <span className="text-[11px] text-muted">
+            Direct &amp; deterministic pairing · Mutual agreement unlocks conversation
+          </span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
+          <div className="border border-line/60 bg-paper p-2.5">
+            <span className="font-mono text-[10px] text-oxblood font-semibold">01 · Discover</span>
+            <p className="mt-0.5 text-[11px] text-muted leading-tight">Explore storefronts &amp; briefs</p>
+          </div>
+          <div className="border border-line/60 bg-paper p-2.5">
+            <span className="font-mono text-[10px] text-oxblood font-semibold">02 · View Details</span>
+            <p className="mt-0.5 text-[11px] text-muted leading-tight">Review packages &amp; fit score</p>
+          </div>
+          <div className="border border-line/60 bg-paper p-2.5">
+            <span className="font-mono text-[10px] text-oxblood font-semibold">03 · Express Interest</span>
+            <p className="mt-0.5 text-[11px] text-muted leading-tight">Pitch or quick-match invite</p>
+          </div>
+          <div className="border border-line/60 bg-paper p-2.5">
+            <span className="font-mono text-[10px] text-oxblood font-semibold">04 · Mutual Match</span>
+            <p className="mt-0.5 text-[11px] text-muted leading-tight">Two-way interest locks match</p>
+          </div>
+          <div className="col-span-2 sm:col-span-1 border border-line/60 bg-paper p-2.5">
+            <span className="font-mono text-[10px] text-oxblood font-semibold">05 · Connect</span>
+            <p className="mt-0.5 text-[11px] text-muted leading-tight">Direct messaging &amp; orders</p>
+          </div>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -388,7 +436,7 @@ export default async function DiscoverPage({
                       </span>
                       {isProviderAuthenticated ? (
                         <span className="border border-oxblood/40 bg-oxblood/10 px-2 py-0.5 text-[10px] text-oxblood uppercase font-mono tracking-wider">
-                          ✓ Audited
+                          ✓ Connected
                         </span>
                       ) : null}
                     </div>
@@ -447,6 +495,26 @@ export default async function DiscoverPage({
                       </span>
                     ))}
                   </div>
+
+                  {/* Latest Professional Milestone / Activity */}
+                  {creator.user?.posts?.[0] ? (
+                    <div className="mt-3 rounded border border-line/70 bg-paper/60 p-2.5 text-xs">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-oxblood font-semibold">
+                          ✨ Recent {creator.user.posts[0].postType.replace("_", " ").toLowerCase()}
+                        </span>
+                        <span className="font-mono text-[10px] text-muted">
+                          {new Date(creator.user.posts[0].createdAt).toLocaleDateString([], {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                      <p className="mt-1 line-clamp-1 text-[11px] text-ink leading-tight">
+                        &ldquo;{creator.user.posts[0].content}&rdquo;
+                      </p>
+                    </div>
+                  ) : null}
 
                   {/* Compatibility Badge if Brand has campaigns */}
                   {topFit ? (

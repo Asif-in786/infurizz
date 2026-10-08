@@ -53,9 +53,15 @@ export function InterestForm({
       </button>
       <FormError error={state?.error} />
       {state?.pending ? (
-        <p className="text-sm text-muted">
-          Interest recorded. A match is created only when the other side expresses interest too.
-        </p>
+        <div className="border border-line bg-paper/80 p-3.5 text-xs text-muted">
+          <p className="font-medium text-ink">
+            ✓ Quick-match interest successfully recorded
+          </p>
+          <p className="mt-1 leading-relaxed">
+            {state.campaignName ? `Interest logged for "${state.campaignName}". ` : ""}
+            If reciprocal interest is expressed by the other party, a mutual collaboration desk unlocks automatically with direct messaging.
+          </p>
+        </div>
       ) : null}
     </form>
   );

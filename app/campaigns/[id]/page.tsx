@@ -70,7 +70,18 @@ export default async function CampaignPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const campaign = await prisma.campaign.findUnique({ where: { id }, include: { brand: true } });
+  const campaign = await prisma.campaign.findUnique({
+    where: { id },
+    include: {
+      brand: true,
+      applications: {
+        select: { id: true, status: true },
+      },
+      matches: {
+        select: { id: true },
+      },
+    },
+  });
   if (!campaign) notFound();
 
   const viewer = await getCurrentUser();
@@ -148,6 +159,8 @@ export default async function CampaignPage({
 
   const accepting = isCampaignAcceptingApplications(campaign.status);
   const isPublished = isCampaignPublished(campaign.status);
+  const totalApplications = campaign.applications.length;
+  const acceptedApplications = campaign.applications.filter((a) => a.status === "ACCEPTED").length;
 
   const formattedApplications: ApplicationItem[] = brandApplications.map((app) => ({
     id: app.id,
@@ -233,9 +246,46 @@ export default async function CampaignPage({
           <Item label="Location" value={campaign.location} />
           <Item label="Budget range" value={`${money(campaign.budgetMin)}–${money(campaign.budgetMax)}`} />
           <Item label="Deliverables" value={campaign.deliverables} />
-          <Item label="Status" value={campaign.status} />
+          <Item
+            label="Campaign activity"
+            value={`${totalApplications} pitch${totalApplications === 1 ? "" : "es"} (${acceptedApplications} accepted)`}
+          />
         </dl>
       </ScrollReveal>
+
+      {/* Collaboration Pathways Guidance for Creators */}
+      {!owns ? (
+        <ScrollReveal className="mt-8">
+          <div className="border border-line bg-card/60 p-5">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-3">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-oxblood font-semibold">
+                Creator Collaboration Pathways
+              </span>
+              <span className="text-[11px] font-mono text-muted">
+                {accepting ? "Open for Submissions" : "Brief Status: " + campaign.status}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="border border-line/60 bg-paper p-4">
+                <span className="font-mono text-[11px] font-semibold text-ink uppercase">
+                  Pathway A · Formal Proposal
+                </span>
+                <p className="mt-1 text-xs text-muted leading-relaxed">
+                  Submit your proposed rate (within {money(campaign.budgetMin)}–{money(campaign.budgetMax)}) and pitch below. You can attach one of your pre-defined storefront packages for fixed turnaround.
+                </p>
+              </div>
+              <div className="border border-line/60 bg-paper p-4">
+                <span className="font-mono text-[11px] font-semibold text-ink uppercase">
+                  Pathway B · Quick Match Interest
+                </span>
+                <p className="mt-1 text-xs text-muted leading-relaxed">
+                  Express mutual interest to signal your availability. If the brand reciprocates, a private conversation opens immediately to discuss custom terms.
+                </p>
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+      ) : null}
 
       {/* Main Campaign Interaction Grid */}
       <ScrollReveal className="mt-12">

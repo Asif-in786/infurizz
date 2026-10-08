@@ -5,6 +5,8 @@ import { PageIntro, Shell } from "@/components/page-intro";
 import { getCurrentUser } from "@/lib/current";
 import { prisma } from "@/lib/prisma";
 
+import { money } from "@/lib/format";
+
 export const metadata: Metadata = {
   title: "Matches",
   robots: {
@@ -32,7 +34,7 @@ export default async function MatchesPage() {
       <PageIntro
         eyebrow="Matches"
         title="Mutual interest."
-        lede="Each row is a creator and a campaign where both sides expressed interest."
+        lede="Each row is a creator and a campaign where both sides expressed reciprocal interest."
       />
       {matches.length === 0 ? (
         <div className="animate-fade-in my-10 border border-line bg-card p-12 text-center">
@@ -67,18 +69,22 @@ export default async function MatchesPage() {
               className="card-interactive animate-fade-up flex flex-col gap-4 p-5 transition-colors hover:bg-card/60 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-wider text-oxblood">
-                  Mutual Pairing
+                <span className="font-mono text-[10px] uppercase tracking-wider text-oxblood font-semibold">
+                  Verified Mutual Match
                 </span>
                 <p className="mt-1 font-serif text-2xl text-ink">
-                  {match.creator.name} and {match.campaign.brand.name}
+                  {match.creator.name} &amp; {match.campaign.brand.name}
                 </p>
-                <p className="mt-0.5 text-xs text-muted">
-                  Campaign: <strong className="text-ink">{match.campaign.name}</strong>
-                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-muted">
+                  <span>Campaign: <strong className="text-ink">{match.campaign.name}</strong></span>
+                  <span>·</span>
+                  <span>Category: {match.campaign.category}</span>
+                  <span>·</span>
+                  <span className="font-mono">Budget: {money(match.campaign.budgetMin)}–{money(match.campaign.budgetMax)}</span>
+                </div>
               </div>
               <Link
-                className="btn-tactile inline-flex min-h-10 items-center justify-center bg-ink px-5 text-xs uppercase tracking-widest text-paper hover:bg-oxblood"
+                className="btn-tactile inline-flex min-h-10 items-center justify-center bg-ink px-5 text-xs uppercase tracking-widest text-paper hover:bg-oxblood transition-colors"
                 href={`/matches/${match.id}`}
               >
                 Open Desk →

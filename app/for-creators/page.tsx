@@ -19,10 +19,10 @@ export const metadata: Metadata = {
 
 const path = [
   ["Join INFURIZZ", "Choose Creator and open an account."],
-  ["Create a profile", "Add category, location, niche, audience range, and the platforms you want listed."],
-  ["Discover", "Review open campaigns one at a time."],
-  ["Interested", "Record interest. The brand still has to respond."],
-  ["Match", "When both sides have interest, start a conversation."],
+  ["Create a Storefront", "Add category, location, niche, audience range, social channels, and fixed-scope service packages."],
+  ["Discover Briefs", "Review open brand briefs filtered by platform and budget."],
+  ["Express Interest / Pitch", "Record mutual interest or submit a custom proposal with deliverables and rate."],
+  ["Mutual Match & Connect", "When both sides confirm reciprocal interest, a dedicated collaboration desk unlocks with direct messaging."],
 ];
 
 export default function ForCreatorsPage() {
@@ -31,7 +31,7 @@ export default function ForCreatorsPage() {
       <PageIntro
         eyebrow="For Creators"
         title="One profile. The campaigns that fit it."
-        lede="You enter your own platforms and audience range. INFURIZZ does not sign into Instagram, YouTube, or any other network."
+        lede="Present your multi-platform presence, showcase deliverable packages, and connect with brand campaigns that match your audience."
       />
       <ol className="mt-12 max-w-2xl divide-y divide-line border-y border-line">
         {path.map(([title, copy], index) => (
