@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageIntro, Shell } from "@/components/page-intro";
+import { DisconnectPlatformButton } from "@/components/disconnect-platform-button";
 import { getCurrentUser } from "@/lib/current";
 import { prisma } from "@/lib/prisma";
 import { connectPlatform, disconnectPlatform } from "@/lib/actions";
@@ -40,8 +41,8 @@ export default async function AnalyticsPage({
     redirect("/onboarding/role");
   }
 
-  const params = await searchParams;
-  const currentTab = params.tab || "overview";
+  const params = (await searchParams) || {};
+  const currentTab = (params.tab || "overview").toLowerCase();
 
   // Query creator's connected accounts and metric snapshots
   const [socialAccounts, socialProfiles] = await Promise.all([
@@ -82,7 +83,7 @@ export default async function AnalyticsPage({
       reach: bigint | null;
       engagementRate: string | null;
       lastSyncedAt: Date | null;
-      content: typeof socialAccounts[0]["contentItems"];
+      content: (typeof socialAccounts)[number]["contentItems"];
     }
   > = {};
 
@@ -93,9 +94,9 @@ export default async function AnalyticsPage({
 
     if (isConnected) connectedPlatformsCount++;
 
-    const followerSnap = acc?.snapshots.find((s) => s.canonicalMetricName === "AUDIENCE_FOLLOWER_COUNT");
-    const reachSnap = acc?.snapshots.find((s) => s.canonicalMetricName === "CONTENT_LIFETIME_VIEWS");
-    const erSnap = acc?.snapshots.find((s) => s.canonicalMetricName === "ENGAGEMENT_RATE_30D");
+    const followerSnap = acc?.snapshots?.find((s) => s.canonicalMetricName === "AUDIENCE_FOLLOWER_COUNT");
+    const reachSnap = acc?.snapshots?.find((s) => s.canonicalMetricName === "CONTENT_LIFETIME_VIEWS");
+    const erSnap = acc?.snapshots?.find((s) => s.canonicalMetricName === "ENGAGEMENT_RATE_30D");
 
     const followers = followerSnap?.valueInt ?? null;
     const reach = reachSnap?.valueInt ?? null;
@@ -103,7 +104,10 @@ export default async function AnalyticsPage({
 
     if (followers) totalAudienceCount += followers;
     if (reach) totalReachCount += reach;
-    if (erSnap?.valueDecimal) engagementRates.push(Number(erSnap.valueDecimal));
+    if (erSnap?.valueDecimal) {
+      const parsed = Number(erSnap.valueDecimal);
+      if (!Number.isNaN(parsed)) engagementRates.push(parsed);
+    }
 
     platformStats[plat.id] = {
       isConnected,
@@ -123,7 +127,7 @@ export default async function AnalyticsPage({
       ? "Calculating"
       : "Not connected";
 
-  const totalContentSynced = socialAccounts.reduce((sum, a) => sum + a.contentItems.length, 0);
+  const totalContentSynced = socialAccounts.reduce((sum, a) => sum + (a.contentItems?.length || 0), 0);
 
   return (
     <Shell>
@@ -451,15 +455,7 @@ export default async function AnalyticsPage({
                       <p className="font-mono text-xs text-oxblood">{stat.handle}</p>
                       <form action={disconnectPlatform}>
                         <input type="hidden" name="platform" value={plat.id} />
-                        <button
-                          type="submit"
-                          onClick={(e) => {
-                            if (!confirm(`Disconnect ${plat.name}?`)) e.preventDefault();
-                          }}
-                          className="text-xs text-muted hover:text-oxblood underline"
-                        >
-                          Disconnect Platform
-                        </button>
+                        <DisconnectPlatformButton platformName={plat.name} />
                       </form>
                     </div>
                   ) : (
