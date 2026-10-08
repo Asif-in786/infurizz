@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { logout } from "@/lib/actions";
@@ -70,25 +71,40 @@ export function SiteHeader({
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link
           href={signedIn ? (role === "CREATOR" ? "/posts" : "/posts") : "/"}
-          className="group relative flex flex-col items-start font-serif text-[1.45rem] font-semibold leading-none tracking-[-0.03em] text-ink select-none"
+          className="group relative flex items-center gap-2.5 py-1 select-none"
+          aria-label="INFURIZZ Home"
         >
-          <span className="flex items-baseline">
-            {["I", "N", "F", "U", "R", "I", "Z", "Z"].map((char, i) => (
-              <span
-                key={i}
-                className="inline-block transition-transform duration-200 group-hover:animate-rail-wave"
-                style={{ animationDelay: `${i * 90}ms` }}
-              >
-                {char}
-              </span>
-            ))}
-          </span>
-          {/* Subtle micro-rail track under brand logo that activates on hover */}
-          <span className="relative mt-1 h-[2px] w-full overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true">
-            <span className="absolute inset-0 bg-ink/20" />
-            <span className="absolute inset-0 animate-rail-track-flow bg-[repeating-linear-gradient(90deg,rgba(22,20,17,0.5)_0px,rgba(22,20,17,0.5)_1px,transparent_1px,transparent_6px)]" />
-            <span className="absolute top-0 h-full w-6 -translate-x-full animate-rail-beam bg-gradient-to-r from-transparent via-[#6f2e2a] to-[#f59e0b]" />
-          </span>
+          {/* Brand Mark Emblem with interactive spring rotation */}
+          <div className="relative flex items-center justify-center">
+            <Image
+              src="/brand/infurizz-mark.png"
+              alt=""
+              width={34}
+              height={34}
+              className="h-8 w-auto object-contain transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-110"
+              priority
+            />
+          </div>
+          {/* Brand Wordmark with locomotive rail beam micro-reveal */}
+          <div className="relative flex flex-col items-start justify-center">
+            <Image
+              src="/brand/infurizz-wordmark.png"
+              alt="INFURIZZ"
+              width={96}
+              height={22}
+              className="h-[18px] w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
+              priority
+            />
+            {/* Subtle micro-rail track under brand logo that activates on hover */}
+            <span
+              className="relative mt-0.5 h-[2px] w-full overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              aria-hidden="true"
+            >
+              <span className="absolute inset-0 bg-ink/20" />
+              <span className="absolute inset-0 animate-rail-track-flow bg-[repeating-linear-gradient(90deg,rgba(22,20,17,0.5)_0px,rgba(22,20,17,0.5)_1px,transparent_1px,transparent_6px)]" />
+              <span className="absolute top-0 h-full w-6 -translate-x-full animate-rail-beam bg-gradient-to-r from-transparent via-[#6f2e2a] to-[#f59e0b]" />
+            </span>
+          </div>
         </Link>
 
         {/* Role-Based Desktop Navigation */}
@@ -274,8 +290,23 @@ export function SiteFooter({ role }: { role?: string | null }) {
   return (
     <footer className="mt-auto border-t border-line bg-paper">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div>
-          <p className="font-serif text-lg font-medium text-ink">INFURIZZ</p>
+        <div className="flex flex-col gap-2">
+          <Link href="/" className="group flex items-center gap-2.5 select-none" aria-label="INFURIZZ Home">
+            <Image
+              src="/brand/infurizz-mark.png"
+              alt=""
+              width={30}
+              height={30}
+              className="h-7 w-auto object-contain transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-105"
+            />
+            <Image
+              src="/brand/infurizz-wordmark.png"
+              alt="INFURIZZ"
+              width={88}
+              height={20}
+              className="h-4 w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
+            />
+          </Link>
           <p className="text-xs text-muted">Professional Creator Network, Marketplace &amp; Analytics Layer.</p>
         </div>
         <div className="flex flex-wrap items-center gap-6 text-xs text-muted">

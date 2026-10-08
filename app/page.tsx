@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Shell } from "@/components/page-intro";
 import { RevolvingBorder } from "@/components/revolving-border";
 import { ScrollReveal, StaggerGroup } from "@/components/scroll-reveal";
@@ -60,9 +61,19 @@ export default function HomePage() {
       {/* Hero Section with Cinematic Staged Entrance */}
       <section className="grid items-end gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-8">
-          <p className="animate-fade-up text-[11px] tracking-[0.2em] text-oxblood uppercase">
-            Creator and brand discovery
-          </p>
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/brand/infurizz-mark.png"
+              alt=""
+              width={22}
+              height={22}
+              className="h-5 w-auto object-contain animate-emblem-float"
+              priority
+            />
+            <p className="animate-fade-up font-mono text-[11px] tracking-[0.2em] text-oxblood uppercase font-medium">
+              Creator and brand discovery
+            </p>
+          </div>
           <h1 className="animate-editorial-reveal mt-4 font-serif text-[clamp(3.1rem,8.4vw,7.4rem)] leading-[0.86] tracking-[-0.045em] text-ink">
             One Creator.
             <br />
@@ -104,10 +115,10 @@ export default function HomePage() {
           {steps.map(([title, copy], index) => (
             <li
               key={title}
-              className="grid gap-2 border-b border-line py-6 transition-colors duration-200 hover:bg-card/40 sm:grid-cols-[5rem_minmax(0,16rem)_1fr] sm:items-baseline sm:gap-6"
+              className="group grid gap-2 border-b border-line py-6 transition-all duration-300 hover:bg-card/70 sm:grid-cols-[5rem_minmax(0,16rem)_1fr] sm:items-baseline sm:gap-6 sm:hover:px-3"
             >
-              <span className="font-serif text-2xl text-muted">0{index + 1}</span>
-              <h2 className="font-serif text-3xl tracking-[-0.03em] sm:text-4xl text-ink">{title}</h2>
+              <span className="font-serif text-2xl text-muted transition-colors duration-200 group-hover:text-oxblood">0{index + 1}</span>
+              <h2 className="font-serif text-3xl tracking-[-0.03em] sm:text-4xl text-ink transition-colors duration-200 group-hover:text-ink">{title}</h2>
               <p className="text-sm leading-6 text-muted sm:max-w-sm">{copy}</p>
             </li>
           ))}

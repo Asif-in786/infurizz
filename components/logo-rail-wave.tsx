@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 export function LogoRailWave({
   size = "md",
@@ -27,8 +28,26 @@ export function LogoRailWave({
     lg: "w-64 sm:w-72",
   }[size];
 
+  const markSize = {
+    sm: 32,
+    md: 44,
+    lg: 56,
+  }[size];
+
   return (
     <div className={`flex flex-col items-center justify-center ${className}`}>
+      {/* Brand Emblem Mark */}
+      <div className="relative mb-3 flex items-center justify-center">
+        <Image
+          src="/brand/infurizz-mark.png"
+          alt="INFURIZZ Mark"
+          width={markSize}
+          height={markSize}
+          className="h-auto w-auto object-contain transition-transform duration-700 animate-pulse drop-shadow-xs"
+          priority
+        />
+      </div>
+
       {/* Waving Letterform Row */}
       <div
         className={`flex items-baseline font-serif font-semibold tracking-[-0.03em] select-none text-ink ${sizeClasses}`}

@@ -386,6 +386,46 @@ body {
   animation: rail-beam 1.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
+@keyframes emblem-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-emblem-float {
+  animation: emblem-float 3.2s ease-in-out infinite;
+}
+
+/* Touch device tactile response */
+@media (hover: none) {
+  .btn-tactile:active {
+    transform: scale(0.97);
+    opacity: 0.92;
+  }
+  .card-interactive:active {
+    transform: scale(0.985);
+  }
+}
+
+/* Editorial custom scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(22, 20, 17, 0.2);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(22, 20, 17, 0.45);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -405,7 +445,8 @@ body {
   .btn-tactile,
   .animate-rail-wave,
   .animate-rail-track-flow,
-  .animate-rail-beam {
+  .animate-rail-beam,
+  .animate-emblem-float {
     animation: none !important;
     transition: none !important;
   }
