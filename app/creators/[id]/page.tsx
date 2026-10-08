@@ -440,7 +440,7 @@ export default async function CreatorStorefrontPage({
       </div>
 
       {/* Professional Media Kit Specification Grid */}
-      <div className="mt-8 grid gap-3 border-y border-line py-5 sm:grid-cols-2 lg:grid-cols-4 bg-card/40">
+      <div className="mt-8 grid gap-3 rounded-xl border border-line py-5 px-3 sm:grid-cols-2 lg:grid-cols-4 bg-card/60 shadow-xs">
         <div className="p-3">
           <dt className="text-[11px] font-mono uppercase tracking-wider text-muted">Audience Scale</dt>
           <dd className="mt-1 font-serif text-2xl text-ink font-medium">

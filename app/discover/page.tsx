@@ -255,34 +255,37 @@ export default async function DiscoverPage({
         </Link>
       </div>
 
-      {/* Matchmaking Protocol Stepper */}
-      <div className="mt-6 border border-line bg-card/60 p-4">
+      {/* Matchmaking Protocol Stepper with Interactive Tactile Feedback */}
+      <div className="mt-6 rounded-xl border border-line bg-card/70 p-5 shadow-xs">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-3">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-oxblood font-semibold">
-            INFURIZZ Matchmaking Protocol
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-oxblood animate-pulse" />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-oxblood font-semibold">
+              INFURIZZ Matchmaking Protocol
+            </span>
+          </div>
           <span className="text-[11px] text-muted">
             Direct &amp; deterministic pairing · Mutual agreement unlocks conversation
           </span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-5">
-          <div className="border border-line/60 bg-paper p-2.5">
+          <div className="card-interactive rounded-lg border border-line/60 bg-paper p-3 transition-colors hover:border-oxblood/40">
             <span className="font-mono text-[10px] text-oxblood font-semibold">01 · Discover</span>
             <p className="mt-0.5 text-[11px] text-muted leading-tight">Explore storefronts &amp; briefs</p>
           </div>
-          <div className="border border-line/60 bg-paper p-2.5">
+          <div className="card-interactive rounded-lg border border-line/60 bg-paper p-3 transition-colors hover:border-oxblood/40">
             <span className="font-mono text-[10px] text-oxblood font-semibold">02 · View Details</span>
             <p className="mt-0.5 text-[11px] text-muted leading-tight">Review packages &amp; fit score</p>
           </div>
-          <div className="border border-line/60 bg-paper p-2.5">
+          <div className="card-interactive rounded-lg border border-line/60 bg-paper p-3 transition-colors hover:border-oxblood/40">
             <span className="font-mono text-[10px] text-oxblood font-semibold">03 · Express Interest</span>
             <p className="mt-0.5 text-[11px] text-muted leading-tight">Pitch or quick-match invite</p>
           </div>
-          <div className="border border-line/60 bg-paper p-2.5">
+          <div className="card-interactive rounded-lg border border-line/60 bg-paper p-3 transition-colors hover:border-oxblood/40">
             <span className="font-mono text-[10px] text-oxblood font-semibold">04 · Mutual Match</span>
             <p className="mt-0.5 text-[11px] text-muted leading-tight">Two-way interest locks match</p>
           </div>
-          <div className="col-span-2 sm:col-span-1 border border-line/60 bg-paper p-2.5">
+          <div className="card-interactive col-span-2 sm:col-span-1 rounded-lg border border-line/60 bg-paper p-3 transition-colors hover:border-oxblood/40">
             <span className="font-mono text-[10px] text-oxblood font-semibold">05 · Connect</span>
             <p className="mt-0.5 text-[11px] text-muted leading-tight">Direct messaging &amp; orders</p>
           </div>
@@ -426,16 +429,16 @@ export default async function DiscoverPage({
               <article
                 key={creator.id}
                 style={{ animationDelay: `${Math.min(idx * 45, 600)}ms` }}
-                className="group card-interactive animate-fade-up flex flex-col justify-between border border-line bg-card p-6"
+                className="group card-interactive animate-fade-up flex flex-col justify-between rounded-xl border border-line bg-card p-6 transition-all duration-300 hover:border-ink/50 hover:shadow-lg"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="border border-line bg-paper px-2 py-0.5 text-xs text-muted">
+                      <span className="rounded border border-line bg-paper px-2 py-0.5 text-xs text-muted">
                         {creator.category}
                       </span>
                       {isProviderAuthenticated ? (
-                        <span className="border border-oxblood/40 bg-oxblood/10 px-2 py-0.5 text-[10px] text-oxblood uppercase font-mono tracking-wider">
+                        <span className="rounded border border-oxblood/40 bg-oxblood/10 px-2 py-0.5 text-[10px] text-oxblood uppercase font-mono tracking-wider">
                           ✓ Connected
                         </span>
                       ) : null}
@@ -487,13 +490,29 @@ export default async function DiscoverPage({
                     </div>
                   ) : null}
 
-                  {/* Platforms */}
+                  {/* Platforms with Distinctive Brand Presence */}
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {platforms.map((p) => (
-                      <span key={p} className="border border-line bg-paper px-2 py-0.5 text-[11px] text-muted">
-                        {p}
-                      </span>
-                    ))}
+                    {platforms.map((p) => {
+                      const isYt = p.toLowerCase().includes("youtube");
+                      const isIg = p.toLowerCase().includes("instagram");
+                      const isLi = p.toLowerCase().includes("linkedin");
+                      return (
+                        <span
+                          key={p}
+                          className={`rounded border px-2 py-0.5 text-[11px] font-mono transition-colors ${
+                            isYt
+                              ? "border-red-200 bg-red-50 text-red-700"
+                              : isIg
+                              ? "border-pink-200 bg-pink-50 text-pink-700"
+                              : isLi
+                              ? "border-blue-200 bg-blue-50 text-blue-700"
+                              : "border-line bg-paper text-muted"
+                          }`}
+                        >
+                          {p}
+                        </span>
+                      );
+                    })}
                   </div>
 
                   {/* Latest Professional Milestone / Activity */}
@@ -533,10 +552,10 @@ export default async function DiscoverPage({
                 <div className="mt-6 border-t border-line pt-4">
                   <Link
                     href={`/creators/${creator.username || creator.id}`}
-                    className="btn-tactile group flex min-h-10 w-full items-center justify-center gap-1 border border-ink py-2 text-center text-xs tracking-wider uppercase transition-colors hover:bg-ink hover:text-paper"
+                    className="btn-tactile group flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg border border-ink bg-paper py-2.5 text-center text-xs font-mono tracking-wider uppercase transition-colors hover:bg-ink hover:text-paper shadow-xs"
                   >
                     <span>View Storefront & Packages</span>
-                    <span className="icon-arrow-motion">↗</span>
+                    <span className="icon-arrow-motion font-mono">↗</span>
                   </Link>
                 </div>
               </article>

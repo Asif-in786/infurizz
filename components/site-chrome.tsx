@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { logout } from "@/lib/actions";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 interface NavItem {
   href: string;
@@ -67,45 +68,46 @@ export function SiteHeader({
     : publicLinks;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur-xs">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link
-          href={signedIn ? (role === "CREATOR" ? "/posts" : "/posts") : "/"}
-          className="group relative flex items-center gap-2.5 py-1 select-none"
-          aria-label="INFURIZZ Home"
-        >
-          {/* Brand Mark Emblem with interactive spring rotation */}
-          <div className="relative flex items-center justify-center">
-            <Image
-              src="/brand/infurizz-mark.png"
-              alt=""
-              width={34}
-              height={34}
-              className="h-8 w-auto object-contain transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-110"
-              priority
-            />
-          </div>
-          {/* Brand Wordmark with locomotive rail beam micro-reveal */}
-          <div className="relative flex flex-col items-start justify-center">
-            <Image
-              src="/brand/infurizz-wordmark.png"
-              alt="INFURIZZ"
-              width={96}
-              height={22}
-              className="h-[18px] w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
-              priority
-            />
-            {/* Subtle micro-rail track under brand logo that activates on hover */}
-            <span
-              className="relative mt-0.5 h-[2px] w-full overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              aria-hidden="true"
-            >
-              <span className="absolute inset-0 bg-ink/20" />
-              <span className="absolute inset-0 animate-rail-track-flow bg-[repeating-linear-gradient(90deg,rgba(22,20,17,0.5)_0px,rgba(22,20,17,0.5)_1px,transparent_1px,transparent_6px)]" />
-              <span className="absolute top-0 h-full w-6 -translate-x-full animate-rail-beam bg-gradient-to-r from-transparent via-[#6f2e2a] to-[#f59e0b]" />
-            </span>
-          </div>
-        </Link>
+    <>
+      <header className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur-xs">
+        <div className="mx-auto flex h-18 sm:h-20 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link
+            href={signedIn ? (role === "CREATOR" ? "/posts" : "/posts") : "/"}
+            className="group relative flex items-center gap-3 py-1 select-none"
+            aria-label="INFURIZZ Home"
+          >
+            {/* Brand Mark Emblem with commanding presence & spring rotation */}
+            <div className="relative flex items-center justify-center">
+              <Image
+                src="/brand/infurizz-mark.png"
+                alt="INFURIZZ Emblem"
+                width={48}
+                height={48}
+                className="h-10 sm:h-11 w-auto object-contain transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-110 drop-shadow-xs"
+                priority
+              />
+            </div>
+            {/* Brand Wordmark with locomotive rail beam micro-reveal */}
+            <div className="relative flex flex-col items-start justify-center">
+              <Image
+                src="/brand/infurizz-wordmark.png"
+                alt="INFURIZZ"
+                width={124}
+                height={28}
+                className="h-5 sm:h-6 w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
+                priority
+              />
+              {/* Subtle micro-rail track under brand logo that activates on hover */}
+              <span
+                className="relative mt-1 h-[2px] w-full overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                aria-hidden="true"
+              >
+                <span className="absolute inset-0 bg-ink/20" />
+                <span className="absolute inset-0 animate-rail-track-flow bg-[repeating-linear-gradient(90deg,rgba(22,20,17,0.5)_0px,rgba(22,20,17,0.5)_1px,transparent_1px,transparent_6px)]" />
+                <span className="absolute top-0 h-full w-6 -translate-x-full animate-rail-beam bg-gradient-to-r from-transparent via-[#6f2e2a] to-[#f59e0b]" />
+              </span>
+            </div>
+          </Link>
 
         {/* Role-Based Desktop Navigation */}
         <nav className="hidden items-center gap-6 text-sm lg:flex">
@@ -254,7 +256,10 @@ export function SiteHeader({
           </div>
         </div>
       ) : null}
-    </header>
+      </header>
+      {/* Mobile Floating Social App Navigation Dock */}
+      <MobileBottomNav signedIn={signedIn} role={role} />
+    </>
   );
 }
 
@@ -291,23 +296,23 @@ export function SiteFooter({ role }: { role?: string | null }) {
     <footer className="mt-auto border-t border-line bg-paper">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex flex-col gap-2">
-          <Link href="/" className="group flex items-center gap-2.5 select-none" aria-label="INFURIZZ Home">
+          <Link href="/" className="group flex items-center gap-3 select-none" aria-label="INFURIZZ Home">
             <Image
               src="/brand/infurizz-mark.png"
               alt=""
-              width={30}
-              height={30}
-              className="h-7 w-auto object-contain transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-105"
+              width={42}
+              height={42}
+              className="h-9 w-auto object-contain transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-105 drop-shadow-xs"
             />
             <Image
               src="/brand/infurizz-wordmark.png"
               alt="INFURIZZ"
-              width={88}
-              height={20}
-              className="h-4 w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
+              width={108}
+              height={26}
+              className="h-5 w-auto object-contain transition-opacity duration-200 group-hover:opacity-90"
             />
           </Link>
-          <p className="text-xs text-muted">Professional Creator Network, Marketplace &amp; Analytics Layer.</p>
+          <p className="text-xs text-muted">Professional Creator Network, Marketplace &amp; Multi-Platform Analytics Layer.</p>
         </div>
         <div className="flex flex-wrap items-center gap-6 text-xs text-muted">
           {role === "CREATOR" ? (

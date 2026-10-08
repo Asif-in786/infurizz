@@ -426,6 +426,13 @@ body {
   background: rgba(22, 20, 17, 0.45);
 }
 
+/* Mobile floating navigation clearance */
+@media (max-width: 1024px) {
+  body {
+    padding-bottom: 5.5rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

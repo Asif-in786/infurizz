@@ -81,12 +81,12 @@ export function PostCard({
   });
 
   return (
-    <article className="card-interactive border border-line bg-card p-6">
+    <article className="card-interactive rounded-xl border border-line bg-card p-6 shadow-xs transition-all duration-300 hover:border-ink/40 hover:shadow-md">
       {/* Post Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="avatar-interactive h-10 w-10 shrink-0">
-            <div className="grid h-10 w-10 place-items-center bg-ink font-serif text-sm text-paper">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-ink font-serif text-sm font-bold text-paper">
               {post.author.name
                 .split(" ")
                 .filter(Boolean)
@@ -268,7 +268,7 @@ export function PostCard({
 
       {/* Comments Thread with smooth entrance */}
       {showComments ? (
-        <div className="animate-fade-up mt-4 space-y-3 border-t border-line bg-paper/60 p-4">
+        <div className="animate-fade-up mt-4 space-y-3 rounded-lg border border-line bg-paper/60 p-4">
           <h4 className="text-xs font-semibold tracking-wider text-muted uppercase">
             Discussion ({post.comments.length})
           </h4>
