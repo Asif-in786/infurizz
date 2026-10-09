@@ -119,13 +119,13 @@ export function MobileBottomNav({ signedIn = false, role }: MobileBottomNavProps
       aria-label="Mobile Navigation Bar"
       className="fixed inset-x-2 sm:inset-x-3 bottom-2.5 sm:bottom-3 z-40 mx-auto max-w-md lg:hidden"
     >
-      <nav className="flex items-center justify-around rounded-2xl border border-line/90 bg-card/95 px-1 sm:px-2 py-1.5 sm:py-2 shadow-[0_12px_32px_rgba(22,20,17,0.16)] backdrop-blur-md">
+      <nav className="grid grid-cols-5 w-full items-center rounded-2xl border border-line/90 bg-card/95 px-1 py-1.5 shadow-[0_12px_32px_rgba(22,20,17,0.16)] backdrop-blur-md">
         {navItems.map((item) => {
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`group relative flex min-h-[42px] sm:min-h-[44px] flex-1 min-w-0 flex-col items-center justify-center rounded-xl px-0.5 sm:px-1 py-1 transition-all duration-150 active:scale-90 ${
+              className={`group relative flex min-h-[42px] w-full flex-col items-center justify-center rounded-xl px-0.5 py-1 transition-all duration-150 active:scale-90 ${
                 item.active ? "bg-paper text-oxblood shadow-xs" : "text-muted hover:text-ink"
               }`}
             >
@@ -143,12 +143,12 @@ export function MobileBottomNav({ signedIn = false, role }: MobileBottomNavProps
                 </span>
               )}
 
-              <div className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center">
+              <div className="flex h-4.5 w-4.5 items-center justify-center">
                 {item.icon(item.active)}
               </div>
 
               <span
-                className={`mt-0.5 sm:mt-1 font-mono text-[9px] sm:text-[10px] tracking-tight truncate max-w-full ${
+                className={`mt-0.5 font-mono text-[9px] tracking-tight truncate max-w-full ${
                   item.active ? "font-semibold text-oxblood" : "text-muted"
                 }`}
               >
