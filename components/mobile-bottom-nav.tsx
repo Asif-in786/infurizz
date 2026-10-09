@@ -117,38 +117,38 @@ export function MobileBottomNav({ signedIn = false, role }: MobileBottomNavProps
   return (
     <aside
       aria-label="Mobile Navigation Bar"
-      className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-md lg:hidden"
+      className="fixed inset-x-2 sm:inset-x-3 bottom-2.5 sm:bottom-3 z-40 mx-auto max-w-md lg:hidden"
     >
-      <nav className="flex items-center justify-around rounded-2xl border border-line/90 bg-card/95 px-2 py-2 shadow-[0_12px_32px_rgba(22,20,17,0.16)] backdrop-blur-md">
+      <nav className="flex items-center justify-around rounded-2xl border border-line/90 bg-card/95 px-1 sm:px-2 py-1.5 sm:py-2 shadow-[0_12px_32px_rgba(22,20,17,0.16)] backdrop-blur-md">
         {navItems.map((item) => {
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`group relative flex min-h-[46px] min-w-[54px] flex-col items-center justify-center rounded-xl px-2 py-1 transition-all duration-150 active:scale-90 ${
+              className={`group relative flex min-h-[42px] sm:min-h-[44px] flex-1 min-w-0 flex-col items-center justify-center rounded-xl px-0.5 sm:px-1 py-1 transition-all duration-150 active:scale-90 ${
                 item.active ? "bg-paper text-oxblood shadow-xs" : "text-muted hover:text-ink"
               }`}
             >
               {/* Optional Pulse or Badge */}
               {item.pulse && (
-                <span className="absolute top-1 right-2 flex h-2 w-2">
+                <span className="absolute top-1 right-1.5 flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-oxblood opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-oxblood" />
                 </span>
               )}
 
               {item.badge && (
-                <span className="absolute -top-1 right-1 rounded-full bg-oxblood px-1.5 py-0.2 text-[8px] font-bold text-paper">
+                <span className="absolute -top-1 right-0.5 rounded-full bg-oxblood px-1 py-0.2 text-[7.5px] font-bold text-paper">
                   {item.badge}
                 </span>
               )}
 
-              <div className="flex h-5 w-5 items-center justify-center">
+              <div className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center">
                 {item.icon(item.active)}
               </div>
 
               <span
-                className={`mt-1 font-mono text-[10px] tracking-tight ${
+                className={`mt-0.5 sm:mt-1 font-mono text-[9px] sm:text-[10px] tracking-tight truncate max-w-full ${
                   item.active ? "font-semibold text-oxblood" : "text-muted"
                 }`}
               >
